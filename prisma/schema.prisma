@@ -1,0 +1,78 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id          String        @id @default(cuid())
+  clerkUserId String        @unique
+  name        String?
+  email       String        @unique
+  password    String
+  imageUrl    String?
+  createdAt   DateTime      @default(now())
+  updatedAt   DateTime      @updatedAt
+  trades      Trade[]
+  performance Performance[]
+  aiInsights  AIInsight[]
+}
+
+model Trade {
+  id            String        @id @default(cuid())
+  tradeId       String        @unique
+  instrument    String
+  entryPrice    Float
+  exitPrice     Float
+  positionSize  Float
+  profitLoss    Float
+  entryTime     DateTime
+  exitTime      DateTime
+  duration      Int
+  stopLoss      Float
+  takeProfit    Float
+  screenshotUrl String?
+  strategy      String?
+  notes         String?
+  positionType  PositionType?
+  createdAt     DateTime      @default(now())
+  sentiment     Sentiment?    @default(Neutral)
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  aiInsights    AIInsight[]
+}
+
+model Performance {
+  id                 String   @id @default(cuid())
+  userId             String
+  winRate            Float
+  averageHoldingTime Int
+  averageProfitLoss  Float
+  maxDrawdown        Float
+  user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt          DateTime @default(now())
+}
+
+model AIInsight {
+  insightId      String   @id @default(cuid())
+  tradeReference String   @unique
+  trade          Trade    @relation(fields: [tradeReference], references: [tradeId], onDelete: Cascade)
+  insightText    String
+  createdAt      DateTime @default(now())
+  userId         String
+  user           User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+enum Sentiment {
+  Positive
+  Neutral
+  Negative
+}
+
+enum PositionType {
+  Buy
+  Sell
+}
