@@ -1,38 +1,30 @@
-// app/api/trades/route.ts
 // app/api/positions/add/route.ts
 import { NextRequest } from "next/server";
 
 export async function POST(req: NextRequest) {
   try {
-    // Get the raw body as text since cTrader sends it as form data
+    // Get and log the raw body
     const rawBody = await req.text();
+    console.log("Raw body received:", rawBody);
 
-    // Parse the form data (pid=123&ep=1.2345&et=2024-01-01...)
+    // Parse and log headers
+    console.log("Headers:", Object.fromEntries(req.headers));
+
+    // Parse the form data
     const params = new URLSearchParams(rawBody);
 
     const positionData = {
       positionId: params.get("pid"),
       price: parseFloat(params.get("ep") || "0"),
       time: new Date(params.get("et") || ""),
-      // You might want to add these to your database
       receivedAt: new Date(),
       rawData: rawBody,
     };
 
-    // Log the received data
-    console.log("Received position data:", positionData);
+    // Log the parsed data
+    console.log("Parsed position data:", JSON.stringify(positionData, null, 2));
 
-    // Here you would typically save to your database
-    // Example with prisma:
-    // await prisma.position.create({
-    //     data: {
-    //         positionId: positionData.positionId,
-    //         price: positionData.price,
-    //         timestamp: positionData.time,
-    //         rawData: positionData.rawData
-    //     }
-    // })
-
+    // Return response
     return new Response(
       JSON.stringify({
         success: true,
@@ -47,7 +39,11 @@ export async function POST(req: NextRequest) {
       }
     );
   } catch (error) {
-    console.error("Error processing position data:", error);
+    // Log any errors
+    console.error("Error details:", {
+      message: error instanceof Error ? error.message : "Unknown error",
+      stack: error instanceof Error ? error.stack : undefined,
+    });
 
     return new Response(
       JSON.stringify({
@@ -63,18 +59,6 @@ export async function POST(req: NextRequest) {
       }
     );
   }
-}
-
-// To handle preflight requests if needed
-export async function OPTIONS() {
-  return new Response(null, {
-    status: 200,
-    headers: {
-      "Access-Control-Allow-Origin": "*",
-      "Access-Control-Allow-Methods": "POST, OPTIONS",
-      "Access-Control-Allow-Headers": "Content-Type",
-    },
-  });
 }
 
 /*
