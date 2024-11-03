@@ -21,7 +21,7 @@ interface TradeData {
 
 // Check if the provided API key is valid
 async function isValidApiKey(apiKey: string) {
-  const user = await prisma.user.findUnique({
+  const user = await prisma.user.findFirst({
     where: { apiKey: apiKey },
   });
   return user != null;
