@@ -45,6 +45,18 @@ model Trade {
   aiInsights    AIInsight[]
 }
 
+model Position {
+  id         Int      @id @default(autoincrement())
+  positionId String // from cTrader
+  price      Float
+  timestamp  DateTime
+  receivedAt DateTime @default(now())
+  rawData    String? // store original data for debugging
+
+  @@index([positionId])
+  @@index([timestamp])
+}
+
 model Performance {
   id                 String   @id @default(cuid())
   userId             String
