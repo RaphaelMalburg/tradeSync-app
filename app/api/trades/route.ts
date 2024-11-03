@@ -1,63 +1,31 @@
-// app/api/positions/add/route.ts
-import { NextRequest } from "next/server";
+// /pages/api/trades.js
+import { NextApiRequest, NextApiResponse } from "next";
 
-export async function POST(req: NextRequest) {
-  try {
-    // Get and log the raw body
-    const rawBody = await req.text();
-    console.log("Raw body received:", rawBody);
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  if (req.method === "POST") {
+    try {
+      // Parse the JSON data from the request body
+      const { pid, symbol, entryPrice, entryTime, closeProfit } = req.body;
 
-    // Parse and log headers
-    console.log("Headers:", Object.fromEntries(req.headers));
-
-    // Parse the form data
-    const params = new URLSearchParams(rawBody);
-
-    const positionData = {
-      positionId: params.get("pid"),
-      price: parseFloat(params.get("ep") || "0"),
-      time: new Date(params.get("et") || ""),
-      receivedAt: new Date(),
-      rawData: rawBody,
-    };
-
-    // Log the parsed data
-    console.log("Parsed position data:", JSON.stringify(positionData, null, 2));
-
-    // Return response
-    return new Response(
-      JSON.stringify({
-        success: true,
-        message: "Position data received",
-        data: positionData,
-      }),
-      {
-        status: 200,
-        headers: {
-          "Content-Type": "application/json",
-        },
+      // Log the received data to the console
+      console.log("Received trade data:");
+      console.log(`Position ID: ${pid}`);
+      console.log(`Symbol (Pair): ${symbol}`);
+      console.log(`Entry Price: ${entryPrice}`);
+      console.log(`Entry Time: ${entryTime}`);
+      if (closeProfit !== undefined) {
+        console.log(`Close Profit: ${closeProfit}`);
       }
-    );
-  } catch (error) {
-    // Log any errors
-    console.error("Error details:", {
-      message: error instanceof Error ? error.message : "Unknown error",
-      stack: error instanceof Error ? error.stack : undefined,
-    });
 
-    return new Response(
-      JSON.stringify({
-        success: false,
-        message: "Error processing position data",
-        error: error instanceof Error ? error.message : "Unknown error",
-      }),
-      {
-        status: 500,
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
+      // Send a success response back to the client
+      res.status(200).json({ message: "Trade data received successfully" });
+    } catch (error) {
+      console.error("Error processing trade data:", error);
+      res.status(500).json({ message: "Server error" });
+    }
+  } else {
+    // Handle any requests that aren't POST
+    res.status(405).json({ message: "Method Not Allowed" });
   }
 }
 
