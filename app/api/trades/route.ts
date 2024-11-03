@@ -16,13 +16,13 @@ interface TradeData {
   status: "open" | "update" | "closed";
   duration: number;
 }
+
+// Simplified API key validation
 async function isValidApiKey(apiKey: string) {
   try {
     const user = await prisma.user.findFirst({
       where: {
-        apiKey: {
-          equals: apiKey,
-        },
+        apiKey,
       },
     });
     return user !== null;
@@ -31,10 +31,12 @@ async function isValidApiKey(apiKey: string) {
     return false;
   }
 }
+
+// Simplified user retrieval
 async function getUserByApiKey(apiKey: string) {
-  return await prisma.user.findUnique({
+  return await prisma.user.findFirst({
     where: {
-      apiKey: apiKey,
+      apiKey,
     },
   });
 }
@@ -44,8 +46,13 @@ export async function POST(req: NextRequest) {
     const authHeader = req.headers.get("authorization");
     const providedApiKey = authHeader?.replace("Bearer ", "");
 
-    if (!providedApiKey || !(await isValidApiKey(providedApiKey))) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!providedApiKey) {
+      return NextResponse.json({ error: "No API key provided" }, { status: 401 });
+    }
+
+    const isValid = await isValidApiKey(providedApiKey);
+    if (!isValid) {
+      return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
     }
 
     const user = await getUserByApiKey(providedApiKey);
@@ -58,17 +65,16 @@ export async function POST(req: NextRequest) {
 
     switch (tradeData.status) {
       case "open": {
-        // Create new trade
         await prisma.trade.create({
           data: {
             tradeId: tradeData.tradeId,
             instrument: tradeData.instrument,
             entryPrice: tradeData.entryPrice,
-            exitPrice: 0, // Initial exit price
+            exitPrice: 0,
             positionSize: tradeData.positionSize,
             profitLoss: tradeData.profitLoss,
             entryTime: new Date(tradeData.entryTime),
-            exitTime: new Date(), // Initial exit time
+            exitTime: new Date(),
             duration: tradeData.duration,
             stopLoss: tradeData.stopLoss,
             takeProfit: tradeData.takeProfit,
@@ -79,7 +85,6 @@ export async function POST(req: NextRequest) {
         break;
       }
       case "update": {
-        // Update existing trade
         await prisma.trade.update({
           where: {
             tradeId: tradeData.tradeId,
@@ -94,20 +99,18 @@ export async function POST(req: NextRequest) {
         break;
       }
       case "closed": {
-        // Close the trade
         await prisma.trade.update({
           where: {
             tradeId: tradeData.tradeId,
           },
           data: {
-            exitPrice: tradeData.entryPrice, // Using entryPrice as final price
+            exitPrice: tradeData.entryPrice,
             profitLoss: tradeData.profitLoss,
             exitTime: new Date(),
             duration: tradeData.duration,
           },
         });
 
-        // Update performance metrics
         const userTrades = await prisma.trade.findMany({
           where: {
             userId: user.id,
@@ -118,11 +121,7 @@ export async function POST(req: NextRequest) {
         const winRate = (winningTrades.length / userTrades.length) * 100;
         const averageProfitLoss = userTrades.reduce((sum, trade) => sum + trade.profitLoss, 0) / userTrades.length;
         const averageHoldingTime = Math.floor(userTrades.reduce((sum, trade) => sum + trade.duration, 0) / userTrades.length);
-
-        // Calculate max drawdown
-        const maxDrawdown = userTrades.reduce((maxDD, trade) => {
-          return Math.min(maxDD, trade.profitLoss);
-        }, 0);
+        const maxDrawdown = userTrades.reduce((maxDD, trade) => Math.min(maxDD, trade.profitLoss), 0);
 
         await prisma.performance.create({
           data: {
