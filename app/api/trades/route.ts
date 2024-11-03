@@ -16,16 +16,21 @@ interface TradeData {
   status: "open" | "update" | "closed";
   duration: number;
 }
-
 async function isValidApiKey(apiKey: string) {
-  const user = await prisma.user.findUnique({
-    where: {
-      apiKey: apiKey,
-    },
-  });
-  return user != null;
+  try {
+    const user = await prisma.user.findFirst({
+      where: {
+        apiKey: {
+          equals: apiKey,
+        },
+      },
+    });
+    return user !== null;
+  } catch (error) {
+    console.error("Error validating API key:", error);
+    return false;
+  }
 }
-
 async function getUserByApiKey(apiKey: string) {
   return await prisma.user.findUnique({
     where: {
