@@ -1,12 +1,39 @@
+"use client";
+
 import Link from "next/link";
 import { ArrowRight, BarChart2, BookOpen, PieChart, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { Chat } from "@/components/Chat";
+import { useEffect, useState } from "react";
+import { fetchUserTrades } from "@/lib/chatSeed";
+
+// Define the Trade interface
+interface Trade {
+  id: string; // Adjust the type as necessary
+  entryTime: Date; // Change from string to Date
+  // Add more properties as needed
+}
 
 export default function LandingPage() {
+  const [trades, setTrades] = useState<Trade[]>([]);
+
+  useEffect(() => {
+    const userId = "your_user_id";
+    const getTrades = async () => {
+      try {
+        const fetchedTrades = await fetchUserTrades(userId);
+        setTrades(fetchedTrades);
+      } catch (error) {
+        console.error("Error fetching trades:", error);
+      }
+    };
+    getTrades();
+  }, []);
+
   return (
     <div className="flex flex-col min-h-screen bg-background dark:bg-gray-900">
       <main className="flex-grow">
-        {/* Hero Section */}
+        {/* Hero Section         <Chat />*/}
         <section className="py-24 text-center bg-gradient-to-b from-blue-500 to-blue-300 dark:from-blue-900 dark:to-blue-700">
           <div className="container mx-auto px-6">
             <h1 className="text-5xl font-extrabold mb-6 text-white transition-transform duration-300 hover:scale-105">Master Your Trades with AI-Powered Insights</h1>
@@ -78,6 +105,22 @@ export default function LandingPage() {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
+          </div>
+        </section>
+
+        {/* Display Trades Section */}
+        <section className="py-24 bg-gray-100 dark:bg-gray-800">
+          <div className="container mx-auto px-6">
+            <h2 className="text-4xl font-bold mb-12 text-center text-gray-800 dark:text-gray-200">Your Trades</h2>
+            <ul className="space-y-4">
+              {trades.map((trade, index) => (
+                <li key={index} className="p-4 bg-white dark:bg-gray-700 rounded-lg shadow">
+                  <p className="text-gray-800 dark:text-gray-200">Trade ID: {trade.id}</p>
+                  <p className="text-gray-600 dark:text-gray-400">Entry Time: {new Date(trade.entryTime).toLocaleString()}</p>
+                  {/* Add more trade details as needed */}
+                </li>
+              ))}
+            </ul>
           </div>
         </section>
       </main>

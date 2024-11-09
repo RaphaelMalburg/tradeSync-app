@@ -1,259 +1,113 @@
-// /pages/api/trades.js
-import { NextApiRequest, NextApiResponse } from "next";
-
-export default async function handler(req: NextApiRequest, res: NextApiResponse) {
-  if (req.method === "POST") {
-    try {
-      // Parse the JSON data from the request body
-      const { pid, symbol, entryPrice, entryTime, closeProfit } = req.body;
-
-      // Log the received data to the console
-      console.log("Received trade data:");
-      console.log(`Position ID: ${pid}`);
-      console.log(`Symbol (Pair): ${symbol}`);
-      console.log(`Entry Price: ${entryPrice}`);
-      console.log(`Entry Time: ${entryTime}`);
-      if (closeProfit !== undefined) {
-        console.log(`Close Profit: ${closeProfit}`);
-      }
-
-      // Send a success response back to the client
-      res.status(200).json({ message: "Trade data received successfully" });
-    } catch (error) {
-      console.error("Error processing trade data:", error);
-      res.status(500).json({ message: "Server error" });
-    }
-  } else {
-    // Handle any requests that aren't POST
-    res.status(405).json({ message: "Method Not Allowed" });
-  }
-}
-
-/*
 import { NextRequest, NextResponse } from "next/server";
+import { updateUserPerformanceMetrics } from "@/services/performanceService"; // Import the new service
+import { db } from "@/lib/db";
 
-// Define the expected payload structure
-interface TradePayload {
-  symbol: string;
-  entryPrice: number;
-  timestamp: string;
-  positionType: string;
-  volume: number;
-}
-
-// Validate the payload
-// eslint-disable-next-line @typescript-eslint/no-explicit-any
-function isValidTradePayload(payload: any): payload is TradePayload {
-  return (
-    typeof payload === "object" &&
-    typeof payload.symbol === "string" &&
-    typeof payload.entryPrice === "number" &&
-    typeof payload.timestamp === "string" &&
-    typeof payload.positionType === "string" &&
-    typeof payload.volume === "number"
-  );
-}
-
-export async function POST(request: NextRequest) {
+export async function POST(req: NextRequest) {
+  const data = await req.json();
+  console.log("Received Data:", data); // Log incoming data for inspection
   try {
-    // Verify content type
-    const contentType = request.headers.get("content-type");
-    if (!contentType?.includes("application/json")) {
-      return NextResponse.json({ error: "Content-Type must be application/json" }, { status: 415 });
+    // Validate API key from headers
+    const apiKey = req.headers.get("x-api-key");
+    console.log("API Key:", apiKey);
+    if (!apiKey) {
+      console.log("Error: API key is required");
+      return NextResponse.json({ error: "API key is required" }, { status: 401 });
     }
 
-    // Parse the request body
-    const payload = await request.json();
-
-    // Validate the payload
-    if (!isValidTradePayload(payload)) {
-      return NextResponse.json({ error: "Invalid payload structure" }, { status: 400 });
-    }
-
-    // Log the entire received payload
-    console.log("Received trade payload:", payload);
-
-    // Log the trade data (replace with your preferred storage solution)
-    console.log("Processed trade data:", {
-      symbol: payload.symbol,
-      entryPrice: payload.entryPrice,
-      timestamp: new Date(payload.timestamp),
-      positionType: payload.positionType,
-      volume: payload.volume,
+    // Find user by API key
+    const user = await db.user.findUnique({
+      where: { apiKey },
     });
 
-    // Here you would typically:
-    // 1. Store the trade in your database
-    // 2. Trigger any notifications
-    // 3. Process the trade data as needed
+    if (!user) {
+      console.log("Error: Invalid API key");
+      return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
+    }
 
-    // Send success response
-    return NextResponse.json(
-      {
-        success: true,
-        message: `Successfully received trade for ${payload.symbol}`,
-      },
-      { status: 200 }
-    );
+    const eventType = data.eventType;
+    console.log("Event Type:", eventType); // Log the event type
+
+    if (eventType === "POSITION_OPENED") {
+      // Handle position opening
+      console.log("Handling POSITION_OPENED event");
+      await db.position.create({
+        data: {
+          positionId: data.tradeId,
+          price: data.entryPrice,
+          timestamp: new Date(data.entryTime),
+          rawData: JSON.stringify(data),
+        },
+      });
+
+      return NextResponse.json({ message: "Position recorded" }, { status: 201 });
+    } else if (eventType === "POSITION_CLOSED") {
+      // Create or update trade record
+      console.log("Handling POSITION_CLOSED event");
+      const trade = await db.trade.create({
+        data: {
+          tradeId: data.tradeId,
+          userId: user.id,
+          instrument: data.instrument,
+          entryPrice: data.entryPrice,
+          exitPrice: data.exitPrice,
+          positionSize: data.positionSize,
+          profitLoss: data.profitLoss,
+          entryTime: new Date(data.entryTime),
+          exitTime: new Date(data.exitTime),
+          duration: data.duration,
+          stopLoss: data.stopLoss ? data.stopLoss : undefined,
+          takeProfit: data.takeProfit ? data.takeProfit : undefined,
+          strategy: data.strategy,
+          notes: data.notes,
+          positionType: data.positionType === "BUY" ? "Buy" : "Sell",
+          sentiment: data.profitLoss > 0 ? "Positive" : data.profitLoss < 0 ? "Negative" : "Neutral",
+        },
+      });
+
+      // Generate AI insight for the trade
+      const aiInsight = await generateTradeInsight(trade);
+      await db.aIInsight.create({
+        data: {
+          tradeReference: trade.tradeId,
+          userId: user.id,
+          insightText: aiInsight,
+        },
+      });
+
+      // Update user's performance metrics
+      await updateUserPerformanceMetrics(user.id); // Call to the service to update performance metrics
+
+      return NextResponse.json(
+        {
+          message: "Trade recorded successfully",
+          tradeId: trade.tradeId,
+        },
+        { status: 201 }
+      );
+    }
+
+    console.log("Error: Invalid event type");
+    return NextResponse.json({ error: "Invalid event type" }, { status: 400 });
   } catch (error) {
-    console.error("Error processing trade webhook:", error);
+    console.error("Error processing trade:", error);
+    console.error("Received Data:", data); // Log the incoming data
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
-// Optionally, implement a GET method for testing
-export async function GET() {
-  return NextResponse.json({ message: "Trade webhook endpoint is running" }, { status: 200 });
-}
-
-import { NextRequest, NextResponse } from "next/server";
-import { PrismaClient, PositionType } from "@prisma/client";
-
-const prisma = new PrismaClient();
-
-interface TradeData {
-  tradeId: string;
+interface Trade {
   instrument: string;
-  entryPrice: number;
-  positionSize: number;
   profitLoss: number;
-  entryTime: string;
-  stopLoss: number;
-  takeProfit: number;
-  positionType: string;
-  status: "open" | "update" | "closed";
   duration: number;
+  entryPrice: number;
+  exitPrice: number;
 }
 
-// Simplified API key validation
-async function isValidApiKey(apiKey: string) {
-  try {
-    const user = await prisma.user.findFirst({
-      where: {
-        apiKey,
-      },
-    });
-    return user !== null;
-  } catch (error) {
-    console.error("Error validating API key:", error);
-    return false;
-  }
+async function generateTradeInsight(trade: Trade) {
+  // Implement your AI insight generation logic here
+  // This could involve calling an AI service or implementing custom logic
+  return `Trade analysis for ${trade.instrument}:
+          ${trade.profitLoss > 0 ? "Profitable" : "Loss"} trade with
+          ${trade.duration} seconds duration.
+          Entry: ${trade.entryPrice}, Exit: ${trade.exitPrice}`;
 }
-
-// Simplified user retrieval
-async function getUserByApiKey(apiKey: string) {
-  return await prisma.user.findFirst({
-    where: {
-      apiKey: apiKey,
-    },
-  });
-}
-
-export async function POST(req: NextRequest) {
-  try {
-    const authHeader = req.headers.get("authorization");
-    const providedApiKey = authHeader?.replace("Bearer ", "");
-
-    if (!providedApiKey) {
-      return NextResponse.json({ error: "No API key provided" }, { status: 401 });
-    }
-
-    const isValid = await isValidApiKey(providedApiKey);
-    if (!isValid) {
-      return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
-    }
-
-    const user = await getUserByApiKey(providedApiKey);
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
-
-    const tradeData: TradeData = await req.json();
-    const positionType = tradeData.positionType.toUpperCase() === "BUY" ? PositionType.Buy : PositionType.Sell;
-
-    switch (tradeData.status) {
-      case "open": {
-        await prisma.trade.create({
-          data: {
-            tradeId: tradeData.tradeId,
-            instrument: tradeData.instrument,
-            entryPrice: tradeData.entryPrice,
-            exitPrice: 0,
-            positionSize: tradeData.positionSize,
-            profitLoss: tradeData.profitLoss,
-            entryTime: new Date(tradeData.entryTime),
-            exitTime: new Date(),
-            duration: tradeData.duration,
-            stopLoss: tradeData.stopLoss,
-            takeProfit: tradeData.takeProfit,
-            positionType: positionType,
-            userId: user.id,
-          },
-        });
-        break;
-      }
-      case "update": {
-        await prisma.trade.update({
-          where: {
-            tradeId: tradeData.tradeId,
-          },
-          data: {
-            profitLoss: tradeData.profitLoss,
-            duration: tradeData.duration,
-            stopLoss: tradeData.stopLoss,
-            takeProfit: tradeData.takeProfit,
-          },
-        });
-        break;
-      }
-      case "closed": {
-        await prisma.trade.update({
-          where: {
-            tradeId: tradeData.tradeId,
-          },
-          data: {
-            exitPrice: tradeData.entryPrice,
-            profitLoss: tradeData.profitLoss,
-            exitTime: new Date(),
-            duration: tradeData.duration,
-          },
-        });
-
-        const userTrades = await prisma.trade.findMany({
-          where: {
-            userId: user.id,
-          },
-        });
-
-        const winningTrades = userTrades.filter((trade) => trade.profitLoss > 0);
-        const winRate = (winningTrades.length / userTrades.length) * 100;
-        const averageProfitLoss = userTrades.reduce((sum, trade) => sum + trade.profitLoss, 0) / userTrades.length;
-        const averageHoldingTime = Math.floor(userTrades.reduce((sum, trade) => sum + trade.duration, 0) / userTrades.length);
-        const maxDrawdown = userTrades.reduce((maxDD, trade) => Math.min(maxDD, trade.profitLoss), 0);
-
-        await prisma.performance.create({
-          data: {
-            userId: user.id,
-            winRate,
-            averageProfitLoss,
-            averageHoldingTime,
-            maxDrawdown,
-          },
-        });
-        break;
-      }
-      default: {
-        return NextResponse.json({ error: "Invalid trade status" }, { status: 400 });
-      }
-    }
-
-    return NextResponse.json({ success: true });
-  } catch (error) {
-    console.error("Error processing trade:", error);
-    return NextResponse.json({ error: "Internal Server Error" }, { status: 500 });
-  } finally {
-    await prisma.$disconnect();
-  }
-}
-
-*/

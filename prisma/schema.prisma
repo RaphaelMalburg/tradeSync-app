@@ -32,8 +32,8 @@ model Trade {
   entryTime     DateTime
   exitTime      DateTime
   duration      Int
-  stopLoss      Float
-  takeProfit    Float
+  stopLoss      Float?
+  takeProfit    Float?
   screenshotUrl String?
   strategy      String?
   notes         String?
@@ -52,9 +52,6 @@ model Position {
   timestamp  DateTime
   receivedAt DateTime @default(now())
   rawData    String? // store original data for debugging
-
-  @@index([positionId])
-  @@index([timestamp])
 }
 
 model Performance {
