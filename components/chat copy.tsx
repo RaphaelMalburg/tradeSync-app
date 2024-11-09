@@ -5,10 +5,9 @@ import { Button } from "@/components/ui/button";
 import { useChat } from "ai/react";
 import { useRef, useEffect } from "react";
 
-export function Chat({ userId }: { userId: string }) {
+export function Chat() {
   const { messages, input, handleInputChange, handleSubmit } = useChat({
-    api: "api/chat",
-    body: { userId },
+    api: "api/ex3",
     onError: (e) => {
       console.log(e);
     },

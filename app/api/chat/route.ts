@@ -46,7 +46,7 @@ export async function POST(req: Request) {
     console.log(trades);
 
     // Handle empty trades
-    const tradesString = trades.length > 0 ? JSON.stringify(trades) : "No trading activities found.";
+    const tradesString = trades.length > 0 ? trades : "No trading activities found.";
 
     const prompt = PromptTemplate.fromTemplate(TEMPLATE);
 
@@ -68,6 +68,7 @@ export async function POST(req: Request) {
         question: (input) => input.question,
         chat_history: (input) => input.chat_history,
         context: () => context, // Use the updated context
+        trades: () => trades, // Ensure trades are included
       },
       prompt,
       model,
