@@ -10,6 +10,7 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^6.0.2",
+    "@google-cloud/vision": "^4.3.2",
     "@hookform/resolvers": "^3.9.1",
     "@langchain/core": "^0.3.17",
     "@langchain/openai": "^0.3.12",
