@@ -25,7 +25,6 @@ export default async function LandingPage() {
         exitTime: trade.exitTime.toISOString(), // Convert Date to string
       }))
     );
-  console.log("Trades:", trades);
   return (
     <div className="flex flex-col min-h-screen bg-background dark:bg-gray-900">
       <main className="flex-grow">

@@ -2,9 +2,11 @@ import type { Metadata } from "next";
 import localFont from "next/font/local";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
-import Navbar from "@/components/shared/Navbar";
+import Navbar from "@/components/navbar/Navbar";
 import Providers from "./providers";
 import { checkUser } from "@/lib/checkUser";
+import { UserStateHandler } from "@/lib/hooks/UserStateHandler";
+import "react-toastify/dist/ReactToastify.css";
 
 const geistSans = localFont({
   src: "./fonts/GeistVF.woff",
@@ -22,12 +24,13 @@ export const metadata: Metadata = {
   description: "Track your trades and gain AI insights.",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  checkUser();
+  const user = await checkUser();
+
   return (
     <ClerkProvider
       appearance={{
@@ -36,6 +39,7 @@ export default function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased `}>
           <Providers>
+            <UserStateHandler user={user} />
             <Navbar />
             {children}
           </Providers>

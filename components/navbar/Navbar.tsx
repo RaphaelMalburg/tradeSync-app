@@ -1,12 +1,9 @@
-import { SignInButton, SignedIn, SignedOut, UserButton } from "@clerk/nextjs"; // Import Clerk components
 import Link from "next/link";
 import { MoonIcon, BarChart2, BookOpen, PieChart, ChartSpline } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
-import ThemeSwitch from "./ThemeSwitch";
-
+import { NavbarDropdown } from "./NavbarDropdown";
 // Start of Selection
-export default function Navbar() {
+export default async function Navbar() {
   return (
     <nav className="border-b bg-background shadow-md transition-shadow duration-300">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
@@ -28,29 +25,13 @@ export default function Navbar() {
             Insights
           </Link>
         </div>
+
         <div className="flex items-center space-x-4">
-          <ThemeSwitch />
-          <SignedOut>
-            <SignInButton />
-          </SignedOut>
-          <SignedIn>
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <UserButton />
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end">
-                <DropdownMenuLabel>My Account</DropdownMenuLabel>
-                <DropdownMenuSeparator />
-                <DropdownMenuItem>Profile</DropdownMenuItem>
-                <DropdownMenuItem>API Settings</DropdownMenuItem>
-                <DropdownMenuItem>Logout</DropdownMenuItem>
-              </DropdownMenuContent>
-            </DropdownMenu>
-          </SignedIn>
+          <NavbarDropdown />
         </div>
       </div>
       <div className="md:hidden">
-        <div className="flex justify-around py-2 bg-gray-100 rounded-lg shadow-md">
+        <div className="flex justify-around py-2 rounded-lg shadow-md">
           <Link href="/dashboard">
             <Button variant="ghost" size="icon">
               <BarChart2 className="h-5 w-5 text-muted transition-colors duration-300 hover:text-secondary" />
