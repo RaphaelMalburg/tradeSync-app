@@ -1,38 +1,39 @@
 // services/performanceService.ts
 import { PrismaClient } from "@prisma/client";
-import { calculateWinRate, calculateAverageProfitLoss, calculateMaxDrawdown, calculateAverageHoldingTime } from "@/lib/tradingCalculation";
+import { calculatePerformanceMetrics } from "@/lib/tradingCalculation";
 
 const prisma = new PrismaClient();
 
 export async function updateUserPerformanceMetrics(userId: string) {
-  // Fetch all trades for the user
   const trades = await prisma.trade.findMany({
     where: { userId },
+    orderBy: { entryTime: "desc" },
+    take: 100, // Consider last 100 trades for metrics
   });
 
-  if (trades.length === 0) return; // No trades to process
+  if (trades.length === 0) return;
 
-  // Calculate performance metrics
-  const winRate = calculateWinRate(trades);
-  const avgProfitLoss = calculateAverageProfitLoss(trades);
-  const maxDrawdown = calculateMaxDrawdown(trades);
-  const avgHoldingTime = calculateAverageHoldingTime(trades);
+  // Calculate metrics
+  const metrics = calculatePerformanceMetrics(trades);
 
-  // Update or create performance record in the database
-  await prisma.performance.upsert({
-    where: { id: userId },
-    update: {
-      winRate,
-      averageProfitLoss: avgProfitLoss,
-      maxDrawdown,
-      averageHoldingTime: avgHoldingTime,
-    },
-    create: {
+  // Create new performance record
+  await prisma.performance.create({
+    data: {
       userId,
-      winRate,
-      averageProfitLoss: avgProfitLoss,
-      maxDrawdown,
-      averageHoldingTime: avgHoldingTime,
+      winRate: metrics.winRate,
+      averageProfitLoss: metrics.avgProfitLoss,
+      maxDrawdown: metrics.maxDrawdown,
+      averageHoldingTime: metrics.avgHoldingTime,
+    },
+  });
+
+  // Optional: Clean up old records (keep last 30 days)
+  await prisma.performance.deleteMany({
+    where: {
+      userId,
+      createdAt: {
+        lt: new Date(Date.now() - 30 * 24 * 60 * 60 * 1000),
+      },
     },
   });
 }

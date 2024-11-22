@@ -2,9 +2,9 @@
 
 import { useEffect } from "react";
 import { useUserStore } from "@/lib/store/useUserStore";
-import { User } from "@/types";
+import { UserStoreDTO } from "@/lib/dto/user.dto";
 
-export function UserStateHandler({ user }: { user: User | null }) {
+export function UserStateHandler({ user }: { user: UserStoreDTO | null }) {
   const setUser = useUserStore((state) => state.setUser);
 
   useEffect(() => {

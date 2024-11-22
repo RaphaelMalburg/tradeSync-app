@@ -13,7 +13,7 @@ export const NavbarDropdown = () => {
   const { signOut } = useClerk();
   const user = useHydratedStore((state) => state.user);
   const hasHydrated = useHydratedStore((state) => state._hasHydrated);
-  console.log(user);
+
   if (!hasHydrated) {
     return <div className="h-10 w-10 animate-pulse rounded-full bg-muted" />;
   }

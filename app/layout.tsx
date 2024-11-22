@@ -6,6 +6,7 @@ import Navbar from "@/components/navbar/Navbar";
 import Providers from "./providers";
 import { checkUser } from "@/lib/checkUser";
 import { UserStateHandler } from "@/lib/hooks/UserStateHandler";
+import { UserStoreDTO } from "@/lib/dto/user.dto";
 import "react-toastify/dist/ReactToastify.css";
 
 const geistSans = localFont({
@@ -31,6 +32,15 @@ export default async function RootLayout({
 }>) {
   const user = await checkUser();
 
+  const userDTO: UserStoreDTO | null = user
+    ? {
+        id: user.id,
+        clerkUserId: user.clerkUserId,
+        name: user.name,
+        imageUrl: user.imageUrl,
+      }
+    : null;
+
   return (
     <ClerkProvider
       appearance={{
@@ -39,7 +49,7 @@ export default async function RootLayout({
       <html lang="en" suppressHydrationWarning>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased `}>
           <Providers>
-            <UserStateHandler user={user} />
+            <UserStateHandler user={userDTO} />
             <Navbar />
             {children}
           </Providers>

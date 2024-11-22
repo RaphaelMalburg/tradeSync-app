@@ -1,10 +1,10 @@
 import { create } from "zustand";
 import { persist, createJSONStorage } from "zustand/middleware";
-import { User } from "@/types";
+import { UserStoreDTO } from "@/lib/dto/user.dto";
 
 interface UserState {
-  user: User | null;
-  setUser: (user: User | null) => void;
+  user: UserStoreDTO | null;
+  setUser: (user: UserStoreDTO | null) => void;
   _hasHydrated: boolean;
   setHasHydrated: (state: boolean) => void;
 }
