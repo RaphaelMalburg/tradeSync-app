@@ -61,6 +61,7 @@ export async function POST(req: NextRequest) {
           notes: data.notes,
           positionType: data.positionType === "BUY" ? "Buy" : "Sell",
           sentiment: data.profitLoss > 0 ? "Positive" : data.profitLoss < 0 ? "Negative" : "Neutral",
+          accountId: data.accountId,
         },
       });
 

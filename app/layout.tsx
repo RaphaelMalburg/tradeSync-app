@@ -44,7 +44,18 @@ export default async function RootLayout({
   return (
     <ClerkProvider
       appearance={{
-        variables: { colorPrimary: "#3A506B" },
+        variables: {
+          colorPrimary: "#3A506B",
+          colorBackground: "#ffffff",
+          colorText: "#1a1a1a",
+          colorDanger: "#FF4444",
+          colorSuccess: "#00C853",
+          fontFamily: "var(--font-geist-sans)",
+        },
+        elements: {
+          card: "shadow-xl rounded-xl border-0",
+          navbar: "shadow-md",
+        },
       }}>
       <html lang="en" suppressHydrationWarning>
         <body className={`${geistSans.variable} ${geistMono.variable} antialiased `}>

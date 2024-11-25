@@ -1,44 +1,20 @@
 import Link from "next/link";
 import { ArrowRight, BarChart2, BookOpen, PieChart, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { db } from "@/lib/db";
-import { checkUser } from "@/lib/checkUser";
-import TradesList from "@/components/TradesList";
-import { Chat } from "@/components/Chat";
 
 export default async function LandingPage() {
-  const user = await checkUser();
-  if (!user) {
-    // Handle the case where user is null, e.g., redirect or return an error message
-    return <div>User not found</div>; // Example response
-  }
-  const trades = await db.trade
-    .findMany({
-      where: {
-        userId: user.id,
-      },
-    })
-    .then((trades) =>
-      trades.map((trade) => ({
-        ...trade,
-        entryTime: trade.entryTime.toISOString(), // Convert Date to string
-        exitTime: trade.exitTime.toISOString(), // Convert Date to string
-      }))
-    );
   return (
     <div className="flex flex-col min-h-screen bg-background dark:bg-gray-900">
       <main className="flex-grow">
-        {/* Hero Section         <Chat />*/}
-        <Chat userId={user.id} />
-        <section className="py-24 text-center bg-gradient-to-b from-blue-500 to-blue-300 dark:from-blue-900 dark:to-blue-700">
+        <section className="py-24 text-center bg-gradient-to-b from-blue-500 to-blue-300 dark:bg-gradient-to-b dark:from-blue-900 dark:to-blue-700">
           <div className="container mx-auto px-6">
-            <h1 className="text-5xl font-extrabold mb-6 text-white transition-transform duration-300 hover:scale-105">Master Your Trades with AI-Powered Insights</h1>
+            <h1 className="text-5xl font-extrabold mb-6 transition-transform duration-300 hover:scale-105">Master Your Trades with AI-Powered Insights</h1>
             <p className="text-lg mb-8 text-white">Elevate your cTrader experience with our advanced journal and analysis tool</p>
             <div className="flex justify-center gap-6">
-              <Button asChild size="lg" className="transition-transform duration-300 hover:scale-105 bg-white text-blue-900">
+              <Button asChild size="lg" className="transition-transform duration-300 hover:scale-105  text-blue-900">
                 <Link href="/signup">Get Started</Link>
               </Button>
-              <Button asChild variant="outline" size="lg" className="transition-transform duration-300 hover:scale-105 border-white ">
+              <Button asChild variant="outline" size="lg" className="transition-transform duration-300 hover:scale-105">
                 <Link href="/demo">See Demo</Link>
               </Button>
             </div>
@@ -46,9 +22,9 @@ export default async function LandingPage() {
         </section>
 
         {/* Features Section */}
-        <section className="py-24 bg-gray-100 dark:bg-gray-800">
+        <section className="py-24  dark:bg-gray-800">
           <div className="container mx-auto px-6">
-            <h2 className="text-4xl font-bold mb-12 text-center text-gray-800 dark:text-gray-200">Powerful Features for Serious Traders</h2>
+            <h2 className="text-4xl font-bold mb-12 text-center">Powerful Features for Serious Traders</h2>
             <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
               {[
                 { icon: BookOpen, title: "Automatic Trade Logging", description: "Seamlessly log your trades with our custom cTrader plugin" },
@@ -91,7 +67,7 @@ export default async function LandingPage() {
         </section>
 
         {/* Call to Action Section */}
-        <section className="py-24 bg-gradient-to-b from-blue-500 to-blue-300 dark:from-blue-700 dark:to-blue-500">
+        <section className="py-24 bg-gradient-to-b from-blue-500 to-blue-300 dark:from-blue-900 dark:to-blue-700">
           <div className="container mx-auto px-6 text-center">
             <h2 className="text-4xl font-bold mb-6 text-white">Ready to Elevate Your Trading?</h2>
             <p className="text-lg mb-8 text-white">Join thousands of traders who are already benefiting from our powerful analysis tools</p>
@@ -101,14 +77,6 @@ export default async function LandingPage() {
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
             </Button>
-          </div>
-        </section>
-
-        {/* Display Trades Section */}
-        <section className="py-24 bg-gray-100 dark:bg-gray-800">
-          <div className="container mx-auto px-6">
-            <h2 className="text-4xl font-bold mb-12 text-center text-gray-800 dark:text-gray-200">Your Trades</h2>
-            <TradesList trades={trades} />
           </div>
         </section>
       </main>

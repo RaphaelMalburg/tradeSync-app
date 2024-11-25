@@ -6,3 +6,9 @@ export interface User {
   imageUrl: string;
   apiKey?: string;
 }
+
+export interface Account {
+  id: string;
+  name: string;
+  accountType: string;
+}

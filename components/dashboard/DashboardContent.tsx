@@ -40,7 +40,7 @@ export function DashboardContent({ performance, recentTrades }: DashboardDTO) {
             </CardHeader>
             <CardContent>
               <div className="text-2xl font-bold">{latestPerformance.winRate.toFixed(1)}%</div>
-              <p className="text-xs text-muted-foreground">Last updated: {format(new Date(latestPerformance.createdAt), "MMM dd, HH:mm")}</p>
+              <p className="text-xs text-muted-foreground">Last updated: {latestPerformance.createdAt ? format(new Date(latestPerformance.createdAt), "MMM dd, HH:mm") : "N/A"}</p>
             </CardContent>
           </Card>
           <Card>

@@ -12,16 +12,16 @@ export default async function Navbar() {
           <span className="font-bold text-lg text-primary">cTrader Journal</span>
         </Link>
         <div className="hidden md:flex space-x-6 flex-1 justify-center">
-          <Link href="/dashboard" className="text-sm font-medium transition-colors duration-300 hover:text-secondary">
+          <Link href="/dashboard" className="text-sm font-medium text-foreground/60 transition-colors duration-300 hover:text-primary">
             Dashboard
           </Link>
-          <Link href="/trades" className="text-sm font-medium transition-colors duration-300 hover:text-secondary">
+          <Link href="/trades" className="text-sm font-medium text-foreground/60 transition-colors duration-300 hover:text-primary">
             Trades
           </Link>
-          <Link href="/analytics" className="text-sm font-medium transition-colors duration-300 hover:text-secondary">
+          <Link href="/analytics" className="text-sm font-medium text-foreground/60 transition-colors duration-300 hover:text-primary">
             Analytics
           </Link>
-          <Link href="/insights" className="text-sm font-medium transition-colors duration-300 hover:text-secondary">
+          <Link href="/insights" className="text-sm font-medium text-foreground/60 transition-colors duration-300 hover:text-primary">
             Insights
           </Link>
         </div>
@@ -33,26 +33,26 @@ export default async function Navbar() {
       <div className="md:hidden">
         <div className="flex justify-around py-2 rounded-lg shadow-md">
           <Link href="/dashboard">
-            <Button variant="ghost" size="icon">
-              <BarChart2 className="h-5 w-5 text-muted transition-colors duration-300 hover:text-secondary" />
+            <Button variant="ghost" size="icon" className="text-foreground/60 hover:text-primary hover:bg-primary/10">
+              <BarChart2 className="h-5 w-5" />
               <span className="sr-only">Dashboard</span>
             </Button>
           </Link>
           <Link href="/trades">
-            <Button variant="ghost" size="icon">
-              <BookOpen className="h-5 w-5 text-muted transition-colors duration-300 hover:text-secondary" />
+            <Button variant="ghost" size="icon" className="text-foreground/60 hover:text-primary hover:bg-primary/10">
+              <BookOpen className="h-5 w-5" />
               <span className="sr-only">Trades</span>
             </Button>
           </Link>
           <Link href="/analytics">
-            <Button variant="ghost" size="icon">
-              <PieChart className="h-5 w-5 text-muted transition-colors duration-300 hover:text-secondary" />
+            <Button variant="ghost" size="icon" className="text-foreground/60 hover:text-primary hover:bg-primary/10">
+              <PieChart className="h-5 w-5" />
               <span className="sr-only">Analytics</span>
             </Button>
           </Link>
           <Link href="/insights">
-            <Button variant="ghost" size="icon">
-              <MoonIcon className="h-5 w-5 text-muted transition-colors duration-300 hover:text-secondary" />
+            <Button variant="ghost" size="icon" className="text-foreground/60 hover:text-primary hover:bg-primary/10">
+              <MoonIcon className="h-5 w-5" />
               <span className="sr-only">Insights</span>
             </Button>
           </Link>
