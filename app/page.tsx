@@ -1,92 +1,27 @@
-import Link from "next/link";
-import { ArrowRight, BarChart2, BookOpen, PieChart, Zap } from "lucide-react";
-import { Button } from "@/components/ui/button";
+import { HeroSection } from "@/components/landing/HeroSection";
+import { StatsSection } from "@/components/landing/StatsSection";
+import { HowItWorks } from "@/components/landing/HowItWorks";
+import { TestimonialsSection } from "@/components/landing/TestimonialsSection";
+import { CTASection } from "@/components/landing/CTASection";
+import { Footer } from "@/components/landing/Footer";
 
-export default async function LandingPage() {
+export default function LandingPage() {
   return (
-    <div className="flex flex-col min-h-screen bg-background dark:bg-gray-900">
-      <main className="flex-grow">
-        <section className="py-24 text-center bg-gradient-to-b from-blue-500 to-blue-300 dark:bg-gradient-to-b dark:from-blue-900 dark:to-blue-700">
-          <div className="container mx-auto px-6">
-            <h1 className="text-5xl font-extrabold mb-6 transition-transform duration-300 hover:scale-105">Master Your Trades with AI-Powered Insights</h1>
-            <p className="text-lg mb-8 text-white">Elevate your cTrader experience with our advanced journal and analysis tool</p>
-            <div className="flex justify-center gap-6">
-              <Button asChild size="lg" className="transition-transform duration-300 hover:scale-105  text-blue-900">
-                <Link href="/signup">Get Started</Link>
-              </Button>
-              <Button asChild variant="outline" size="lg" className="transition-transform duration-300 hover:scale-105">
-                <Link href="/demo">See Demo</Link>
-              </Button>
-            </div>
-          </div>
-        </section>
+    <div className="min-h-screen relative bg-gradient-to-b from-white via-gray-50/50 to-gray-100/50 dark:from-[#0A0F1C] dark:via-[#0A0F1C] dark:to-[#0A0F1C]">
+      <div className="absolute inset-0 pointer-events-none">
+        <div className="absolute top-0 right-0 w-[800px] h-[600px] bg-blue-500/5 dark:bg-blue-500/10 rounded-full blur-[120px]" />
+        <div className="absolute bottom-0 left-0 w-[600px] h-[500px] bg-purple-500/5 dark:bg-purple-500/10 rounded-full blur-[100px]" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-gradient-to-r from-blue-100/30 to-purple-100/30 dark:from-blue-500/5 dark:to-purple-500/5 rounded-full blur-[120px] opacity-50" />
+      </div>
 
-        {/* Features Section */}
-        <section className="py-24  dark:bg-gray-800">
-          <div className="container mx-auto px-6">
-            <h2 className="text-4xl font-bold mb-12 text-center">Powerful Features for Serious Traders</h2>
-            <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-10">
-              {[
-                { icon: BookOpen, title: "Automatic Trade Logging", description: "Seamlessly log your trades with our custom cTrader plugin" },
-                { icon: BarChart2, title: "Advanced Analytics", description: "Get in-depth performance metrics and visualizations" },
-                { icon: Zap, title: "AI-Powered Insights", description: "Uncover hidden patterns and improve your strategy with AI" },
-                { icon: PieChart, title: "Comprehensive Reports", description: "Generate detailed reports to track your progress over time" },
-              ].map((feature, index) => (
-                <div
-                  key={index}
-                  className="flex flex-col items-center text-center transition-transform duration-300 hover:scale-105 p-6 bg-white dark:bg-gray-700 rounded-lg shadow-lg">
-                  <feature.icon className="h-12 w-12 mb-4 text-blue-600" />
-                  <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">{feature.title}</h3>
-                  <p className="text-gray-600 dark:text-gray-400">{feature.description}</p>
-                </div>
-              ))}
-            </div>
-          </div>
-        </section>
-
-        {/* How It Works Section */}
-        <section className="py-24 bg-white dark:bg-gray-900">
-          <div className="container mx-auto px-6">
-            <h2 className="text-4xl font-bold mb-12 text-center text-gray-800 dark:text-gray-200">How It Works</h2>
-            <ol className="grid md:grid-cols-3 gap-10">
-              {[
-                { title: "Connect", description: "Link your cTrader account with our secure API integration" },
-                { title: "Trade", description: "Continue trading as usual while we automatically log your activity" },
-                { title: "Analyze", description: "Access powerful insights and improve your trading strategies" },
-              ].map((step, index) => (
-                <li
-                  key={index}
-                  className="flex flex-col items-center text-center transition-transform duration-300 hover:scale-105 p-6 bg-gray-100 dark:bg-gray-800 rounded-lg shadow-md">
-                  <div className="w-12 h-12 rounded-full bg-blue-600 text-white flex items-center justify-center text-xl font-bold mb-4">{index + 1}</div>
-                  <h3 className="text-xl font-semibold mb-2 text-gray-800 dark:text-gray-200">{step.title}</h3>
-                  <p className="text-gray-600 dark:text-gray-400">{step.description}</p>
-                </li>
-              ))}
-            </ol>
-          </div>
-        </section>
-
-        {/* Call to Action Section */}
-        <section className="py-24 bg-gradient-to-b from-blue-500 to-blue-300 dark:from-blue-900 dark:to-blue-700">
-          <div className="container mx-auto px-6 text-center">
-            <h2 className="text-4xl font-bold mb-6 text-white">Ready to Elevate Your Trading?</h2>
-            <p className="text-lg mb-8 text-white">Join thousands of traders who are already benefiting from our powerful analysis tools</p>
-            <Button asChild size="lg" className="transition-transform duration-300 hover:scale-105 bg-white text-blue-600">
-              <Link href="/signup" className="inline-flex items-center">
-                Get Started Now
-                <ArrowRight className="ml-2 h-4 w-4" />
-              </Link>
-            </Button>
-          </div>
-        </section>
+      <main className="relative">
+        <HeroSection />
+        <StatsSection />
+        <HowItWorks />
+        <TestimonialsSection />
+        <CTASection />
       </main>
-
-      {/* Footer */}
-      <footer className="py-6 border-t bg-gray-800 dark:bg-gray-900">
-        <div className="container mx-auto px-6">
-          <p className="text-center text-gray-400 dark:text-gray-200">© {new Date().getFullYear()} cTrader Journal. All rights reserved.</p>
-        </div>
-      </footer>
+      <Footer />
     </div>
   );
 }

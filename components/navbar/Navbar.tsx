@@ -5,7 +5,7 @@ import { NavbarDropdown } from "./NavbarDropdown";
 // Start of Selection
 export default async function Navbar() {
   return (
-    <nav className="border-b bg-background shadow-md transition-shadow duration-300">
+    <nav className="sticky top-0 z-50 border-b bg-background shadow-md transition-shadow duration-300">
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center">
           <ChartSpline className="h-6 w-6 mr-2 text-primary transition-transform duration-300 hover:scale-110" />
