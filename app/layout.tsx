@@ -23,6 +23,11 @@ const geistMono = localFont({
 export const metadata: Metadata = {
   title: "TradeSync - Your Trading Assistant",
   description: "Track your trades and gain AI insights.",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+  },
 };
 
 export default async function RootLayout({
