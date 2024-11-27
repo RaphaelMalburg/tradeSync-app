@@ -62,6 +62,7 @@ export default function AboutPage() {
             </div>
             <div className="p-6 bg-white/10 dark:bg-gray-900/20 backdrop-blur-xl rounded-2xl border border-gray-200/20 dark:border-white/[0.08] shadow-lg">
               {/* Placeholder for an image or illustration */}
+
               <div className="aspect-video bg-gradient-to-r from-blue-500/10 to-purple-500/10 rounded-lg" />
             </div>
           </div>
