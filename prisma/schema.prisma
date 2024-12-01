@@ -111,3 +111,36 @@ enum AccountType {
   Demo
   Live
 }
+
+model Product {
+  id          String          @id @default(cuid())
+  name        String
+  description String
+  price       Float
+  category    ProductCategory
+  features    String[]
+  imageUrl    String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+}
+
+enum ProductCategory {
+  TradingBot
+  Plugin
+  Indicator
+}
+
+model Order {
+  id        String   @id @default(cuid())
+  userId    String
+  sessionId String   @unique
+  items     Json
+  total     Float
+  email     String
+  status    String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([userId])
+  @@index([email])
+}
