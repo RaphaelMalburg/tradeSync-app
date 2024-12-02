@@ -8,13 +8,13 @@ export default function SignUpPage() {
 
   return (
     <div
-      className={`min-h-screen flex items-center justify-center bg-gradient-to-b from-white via-gray-50/50 to-gray-100/50 dark:from-[#0A0F1C] dark:via-[#0A0F1C] dark:to-[#0A0F1C] p-4 ${
+      className={`min-h-screen h-screen flex items-center justify-center bg-gradient-to-b from-white via-gray-50/50 to-gray-100/50 dark:from-[#0A0F1C] dark:via-[#0A0F1C] dark:to-[#0A0F1C] p-4 ${
         theme === "dark" ? "text-white" : "text-black"
       }`}>
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
+      <div className="absolute inset-0 overflow-hidden  pointer-events-none">
         <div className="absolute top-0 -right-4 w-[500px] h-[500px] bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-[100px] animate-blob" />
-        <div className="absolute -bottom-8 -left-4 w-[400px] h-[400px] bg-purple-500/10 dark:bg-purple-500/20 rounded-full blur-[100px] animate-blob animation-delay-2000" />
-        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-blue-500/10 dark:bg-blue-500/20 rounded-full blur-[100px] animate-blob animation-delay-4000" />
+        <div className="absolute -bottom-8 -left-4 w-[400px] h-[400px] rounded-full blur-[100px] animate-blob animation-delay-2000" />
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] rounded-full blur-[100px] animate-blob animation-delay-4000" />
       </div>
       <SignUp
         appearance={{

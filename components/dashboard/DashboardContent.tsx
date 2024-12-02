@@ -3,7 +3,7 @@
 import * as React from "react";
 import { BarChart, Activity, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, Legend, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Brush } from "recharts";
 import { DashboardDTO } from "@/lib/dto/dashboard.dto";
 import { format } from "date-fns";
 
@@ -24,9 +24,9 @@ export function DashboardContent({ performance, recentTrades }: DashboardDTO) {
     .reverse() // Reverse to show oldest to newest
     .map((p) => ({
       date: format(new Date(p.createdAt), "MMM dd"),
-      winRate: p.winRate,
-      profitLoss: p.averageProfitLoss,
-      maxDrawdown: p.maxDrawdown,
+      winRate: parseFloat(p.winRate.toFixed(3)),
+      profitLoss: parseFloat(p.averageProfitLoss.toFixed(3)),
+      maxDrawdown: parseFloat(p.maxDrawdown.toFixed(3)),
     }));
 
   return (
@@ -39,7 +39,7 @@ export function DashboardContent({ performance, recentTrades }: DashboardDTO) {
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{latestPerformance.winRate.toFixed(1)}%</div>
+              <div className="text-2xl font-bold">{latestPerformance.winRate.toFixed(3)}%</div>
               <p className="text-xs text-muted-foreground">Last updated: {latestPerformance.createdAt ? format(new Date(latestPerformance.createdAt), "MMM dd, HH:mm") : "N/A"}</p>
             </CardContent>
           </Card>
@@ -49,7 +49,7 @@ export function DashboardContent({ performance, recentTrades }: DashboardDTO) {
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${latestPerformance.averageProfitLoss.toFixed(2)}</div>
+              <div className="text-2xl font-bold">${latestPerformance.averageProfitLoss.toFixed(3)}</div>
               <p className="text-xs text-muted-foreground">Per trade</p>
             </CardContent>
           </Card>
@@ -59,7 +59,7 @@ export function DashboardContent({ performance, recentTrades }: DashboardDTO) {
               <BarChart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${latestPerformance.maxDrawdown.toFixed(2)}</div>
+              <div className="text-2xl font-bold">${latestPerformance.maxDrawdown.toFixed(3)}</div>
               <p className="text-xs text-muted-foreground">Largest peak-to-trough drop</p>
             </CardContent>
           </Card>
@@ -80,38 +80,14 @@ export function DashboardContent({ performance, recentTrades }: DashboardDTO) {
             <CardTitle>Performance Trends</CardTitle>
           </CardHeader>
           <CardContent>
-            <ResponsiveContainer width="100%" height={350}>
+            <ResponsiveContainer width="100%" height={300}>
               <LineChart data={performanceData}>
                 <XAxis dataKey="date" />
                 <YAxis />
-
-                <Legend />
-                <Line
-                  type="monotone"
-                  dataKey="winRate"
-                  name="Win Rate"
-                  stroke="#8884d8"
-                  dot={{ r: 4 }}
-                  activeDot={{ r: 8 }}
-                  label={({ value, x, y }) => (
-                    <text x={x} y={y - 10} fill="#8884d8" textAnchor="middle" dominantBaseline="middle" className="text-xs font-medium ">
-                      {`${Number(value).toFixed(1)}%`}
-                    </text>
-                  )}
-                />
-                <Line
-                  type="monotone"
-                  dataKey="profitLoss"
-                  name="Avg P/L"
-                  stroke="#82ca9d"
-                  dot={{ r: 4 }}
-                  activeDot={{ r: 8 }}
-                  label={({ value, x, y }) => (
-                    <text x={x} y={y - 10} fill="#82ca9d" textAnchor="middle" dominantBaseline="middle" className="text-xs font-medium">
-                      {`$${Number(value).toFixed(2)}`}
-                    </text>
-                  )}
-                />
+                <Tooltip />
+                <Line type="monotone" dataKey="winRate" stroke="#8884d8" />
+                <Line type="monotone" dataKey="profitLoss" stroke="#82ca9d" />
+                <Brush dataKey="date" height={20} stroke="#8884d8" />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>

@@ -1,7 +1,7 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Brush } from "recharts";
 import { format } from "date-fns";
 import { CustomTooltip } from "./CustomTooltip";
 import { DashboardPerformanceDTO } from "@/lib/dto/dashboard.dto";
@@ -29,9 +29,9 @@ export default function Analytics() {
     .reverse()
     .map((p) => ({
       date: format(new Date(p.createdAt), "MMM dd"),
-      winRate: p.winRate,
-      avgPL: p.averageProfitLoss,
-      drawdown: p.maxDrawdown,
+      winRate: parseFloat(p.winRate.toFixed(3)),
+      avgPL: parseFloat(p.averageProfitLoss.toFixed(3)),
+      drawdown: parseFloat(p.maxDrawdown.toFixed(3)),
     }));
 
   return (
@@ -48,6 +48,7 @@ export default function Analytics() {
                 <YAxis />
                 <Tooltip content={<CustomTooltip />} />
                 <Line type="monotone" dataKey="winRate" stroke="#8884d8" />
+                <Brush dataKey="date" height={20} stroke="#8884d8" />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -64,6 +65,7 @@ export default function Analytics() {
                 <YAxis />
                 <Tooltip content={<CustomTooltip />} />
                 <Line type="monotone" dataKey="avgPL" stroke="#82ca9d" />
+                <Brush dataKey="date" height={20} stroke="#82ca9d" />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
@@ -80,6 +82,7 @@ export default function Analytics() {
                 <YAxis />
                 <Tooltip content={<CustomTooltip />} />
                 <Line type="monotone" dataKey="drawdown" stroke="#ff7300" />
+                <Brush dataKey="date" height={20} stroke="#ff7300" />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>
