@@ -1,28 +1,41 @@
 "use client";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Brush } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Brush } from "recharts";
 import { format } from "date-fns";
 import { CustomTooltip } from "./CustomTooltip";
 import { DashboardPerformanceDTO } from "@/lib/dto/dashboard.dto";
 import { useEffect, useState } from "react";
 import { getPerformance } from "@/lib/actions/performace";
+import { useSearchParams } from "next/navigation";
+import { User } from "@prisma/client";
 
-export default function Analytics() {
+interface AnalyticsProps {
+  userData: User;
+}
+
+export default function Analytics({ userData }: AnalyticsProps) {
   const [performance, setPerformance] = useState<DashboardPerformanceDTO[]>([]);
+  const searchParams = useSearchParams();
+  const accountId = searchParams.get("accountId");
 
   useEffect(() => {
     const fetchPerformance = async () => {
       try {
-        const data = await getPerformance();
-        setPerformance(data);
+        const data = await getPerformance(userData?.id || "", accountId || undefined);
+        setPerformance(
+          data.map((p) => ({
+            ...p,
+            profitFactor: 0,
+          }))
+        );
       } catch (error) {
         console.error("Failed to fetch performance data:", error);
       }
     };
 
     fetchPerformance();
-  }, []);
+  }, [accountId, userData]);
 
   const performanceData = performance
     .slice()

@@ -20,7 +20,7 @@ export default function Trades({ trades }: TradesProps) {
 
   const totalPL = trades.reduce((sum, trade) => sum + trade.profitLoss, 0);
 
-  // Filter and sort trades
+  // Filter and sort tradesnpm run dev
   const filteredTrades = trades
     .filter((trade) => {
       if (filterBy === "winning") return trade.profitLoss > 0;

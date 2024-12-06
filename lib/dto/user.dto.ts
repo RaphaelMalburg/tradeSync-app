@@ -42,6 +42,7 @@ export interface UpdateTradeDTO {
 
 // Performance DTOs
 export interface CreatePerformanceDTO {
+  accountId: string;
   userId: string;
   winRate: number;
   averageHoldingTime: number;

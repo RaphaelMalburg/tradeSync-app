@@ -3,31 +3,37 @@
 import * as React from "react";
 import { BarChart, Activity, TrendingUp } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, CartesianGrid, Brush } from "recharts";
+import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { DashboardDTO } from "@/lib/dto/dashboard.dto";
 import { format } from "date-fns";
 
-// Map performance data for chart
-
 export function DashboardContent({ performance, recentTrades }: DashboardDTO) {
-  // Get the most recent performance metrics
   const latestPerformance = performance[0] || {
     winRate: 0,
     averageProfitLoss: 0,
     maxDrawdown: 0,
-    averageHoldingTime: 0,
+    createdAt: new Date(),
   };
 
-  // Format performance data for charts
-  const performanceData = performance
-    .slice() // Create a copy
-    .reverse() // Reverse to show oldest to newest
-    .map((p) => ({
-      date: format(new Date(p.createdAt), "MMM dd"),
-      winRate: parseFloat(p.winRate.toFixed(3)),
-      profitLoss: parseFloat(p.averageProfitLoss.toFixed(3)),
-      maxDrawdown: parseFloat(p.maxDrawdown.toFixed(3)),
-    }));
+  // Calculate total P/L
+  const totalPL = recentTrades.reduce((sum, trade) => sum + trade.profitLoss, 0);
+
+  // Calculate winning and losing trades
+  const winningTrades = recentTrades.filter((trade) => trade.profitLoss > 0);
+  const losingTrades = recentTrades.filter((trade) => trade.profitLoss < 0);
+
+  // Calculate gross profit and loss
+  const grossProfit = winningTrades.reduce((sum, trade) => sum + trade.profitLoss, 0);
+  const grossLoss = Math.abs(losingTrades.reduce((sum, trade) => sum + trade.profitLoss, 0));
+  const profitFactor = grossLoss === 0 ? grossProfit : grossProfit / grossLoss;
+
+  // Prepare chart data
+  const performanceData = performance.map((p) => ({
+    date: format(new Date(p.createdAt), "MMM dd"),
+    winRate: p.winRate,
+    profitLoss: p.averageProfitLoss,
+    profitFactor: p.profitFactor || 0,
+  }));
 
   return (
     <div className="flex-1 overflow-auto">
@@ -39,30 +45,33 @@ export function DashboardContent({ performance, recentTrades }: DashboardDTO) {
               <Activity className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">{latestPerformance.winRate.toFixed(3)}%</div>
+              <div className="text-2xl font-bold">{latestPerformance.winRate.toFixed(1)}%</div>
               <p className="text-xs text-muted-foreground">Last updated: {latestPerformance.createdAt ? format(new Date(latestPerformance.createdAt), "MMM dd, HH:mm") : "N/A"}</p>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Avg. Profit/Loss</CardTitle>
               <TrendingUp className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${latestPerformance.averageProfitLoss.toFixed(3)}</div>
+              <div className="text-2xl font-bold">${latestPerformance.averageProfitLoss.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">Per trade</p>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Max Drawdown</CardTitle>
               <BarChart className="h-4 w-4 text-muted-foreground" />
             </CardHeader>
             <CardContent>
-              <div className="text-2xl font-bold">${latestPerformance.maxDrawdown.toFixed(3)}</div>
+              <div className="text-2xl font-bold">${latestPerformance.maxDrawdown.toFixed(2)}</div>
               <p className="text-xs text-muted-foreground">Largest peak-to-trough drop</p>
             </CardContent>
           </Card>
+
           <Card>
             <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
               <CardTitle className="text-sm font-medium">Total Trades</CardTitle>
@@ -77,7 +86,7 @@ export function DashboardContent({ performance, recentTrades }: DashboardDTO) {
 
         <Card className="mt-6">
           <CardHeader>
-            <CardTitle>Performance Trends</CardTitle>
+            <CardTitle>Performance Over Time</CardTitle>
           </CardHeader>
           <CardContent>
             <ResponsiveContainer width="100%" height={300}>
@@ -85,9 +94,9 @@ export function DashboardContent({ performance, recentTrades }: DashboardDTO) {
                 <XAxis dataKey="date" />
                 <YAxis />
                 <Tooltip />
-                <Line type="monotone" dataKey="winRate" stroke="#8884d8" />
-                <Line type="monotone" dataKey="profitLoss" stroke="#82ca9d" />
-                <Brush dataKey="date" height={20} stroke="#8884d8" />
+                <Line type="monotone" dataKey="winRate" name="Win Rate %" stroke="#8884d8" />
+                <Line type="monotone" dataKey="profitLoss" name="Avg P/L" stroke="#82ca9d" />
+                <Line type="monotone" dataKey="profitFactor" name="Profit Factor" stroke="#ff7300" />
               </LineChart>
             </ResponsiveContainer>
           </CardContent>

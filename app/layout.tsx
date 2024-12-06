@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import localFont from "next/font/local";
+import { GeistSans, GeistMono } from "geist/font";
 import "./globals.css";
 import { ClerkProvider } from "@clerk/nextjs";
 import Navbar from "@/components/navbar/Navbar";
@@ -9,20 +9,10 @@ import { UserStateHandler } from "@/lib/hooks/UserStateHandler";
 import { UserStoreDTO } from "@/lib/dto/user.dto";
 import "react-toastify/dist/ReactToastify.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
-
 export const metadata: Metadata = {
   title: "TradeSync - Your Trading Assistant",
   description: "Track your trades and gain AI insights.",
+  metadataBase: new URL(process.env.NEXT_PUBLIC_APP_URL || "http://localhost:3000"),
 };
 
 export default async function RootLayout({
@@ -50,15 +40,15 @@ export default async function RootLayout({
           colorText: "#1a1a1a",
           colorDanger: "#FF4444",
           colorSuccess: "#00C853",
-          fontFamily: "var(--font-geist-sans)",
+          fontFamily: GeistSans.style.fontFamily,
         },
         elements: {
           card: "shadow-xl rounded-xl border-0",
           navbar: "shadow-md",
         },
       }}>
-      <html lang="en" suppressHydrationWarning>
-        <body className={`${geistSans.variable} ${geistMono.variable} antialiased `}>
+      <html lang="en" suppressHydrationWarning className={`${GeistSans.variable} ${GeistMono.variable}`}>
+        <body className="antialiased">
           <Providers>
             <UserStateHandler user={userDTO} />
             <Navbar />

@@ -1,12 +1,14 @@
 import { DashboardAIInsightDTO, DashboardTradeDTO } from "@/lib/dto/dashboard.dto";
 
-import { DashboardContent } from "@/components/dashboard/DashboardContent";
 import { getPerformance } from "@/lib/actions/performace";
-
 import { checkUser } from "@/lib/checkUser";
 import { DashboardPerformanceDTO } from "@/lib/dto/dashboard.dto";
 import { mapToDashboardDTO } from "@/lib/mappers/dashboardMapper";
 import { getRecentTrades } from "@/lib/actions/trades";
+import { getAccounts } from "@/lib/actions/accounts";
+import { redirect } from "next/navigation";
+import { DashboardContent } from "@/components/features/dashboard/layout/DashboardContent";
+
 export interface DashboardDTO {
   trades: DashboardTradeDTO[];
   performance: DashboardPerformanceDTO[];
@@ -34,17 +36,36 @@ export interface TradeDTO {
 }
 
 export interface DashboardDTO {
-  performance: PerformanceDTO[];
-  recentTrades: TradeDTO[];
+  performance: DashboardPerformanceDTO[];
+  recentTrades: DashboardTradeDTO[];
 }
-export default async function TradingDashboard() {
+
+export default async function TradingDashboard({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
+  // Convert searchParams to a regular object first
+  const params = Object.fromEntries(Object.entries(await searchParams));
+
+  const accountId = params.accountId;
+
   const user = await checkUser();
   const userId = user?.id ?? "";
 
-  // Get trades and performance data
-  const tradesRaw = await getRecentTrades(userId);
-  const performance = await getPerformance(userId);
+  // Get accounts and handle account selection
+  const accounts = await getAccounts();
 
+  if (!accountId && accounts.length > 0) {
+    redirect(`/dashboard?accountId=${accounts[0].id}`);
+  }
+
+  // Convert accountId to string or undefined
+  const accountIdString = Array.isArray(accountId) ? accountId[0] : accountId;
+
+  // Get trades and performance data for selected account
+  const tradesRaw = await getRecentTrades(userId, accountIdString);
+  const performance = await getPerformance(userId, accountIdString);
+
+  console.log("performance ", performance);
+
+  console.log("tradesRaw ", tradesRaw);
   const dashboardData = mapToDashboardDTO(performance, tradesRaw);
 
   return (

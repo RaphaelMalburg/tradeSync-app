@@ -7,10 +7,10 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Loader2 } from "lucide-react";
 
-export default function Insights({ userId }: { userId: string }) {
+export default function Insights({ userId, accountId }: { userId: string; accountId?: string }) {
   const { messages, input, handleInputChange, handleSubmit, isLoading } = useChat({
     api: "/api/chat",
-    body: { userId },
+    body: { userId, accountId },
     onError: (e) => {
       console.error("Chat error:", e);
       // You could add a toast notification here

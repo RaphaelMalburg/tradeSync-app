@@ -72,3 +72,27 @@ export function calculatePerformanceMetrics(trades: Trade[]): PerformanceMetrics
     maxDrawdown: calculateMaxDrawdown(trades),
   };
 }
+
+export function calculateAverageCommission(trades: Trade[]): number {
+  if (!trades.length) return 0;
+  const totalCommission = trades.reduce((sum, trade) => sum + (trade.commission || 0), 0);
+  return totalCommission / trades.length;
+}
+
+export function calculateAverageWin(trades: Trade[]): number {
+  const winningTrades = trades.filter((trade) => trade.profitLoss > 0);
+  if (!winningTrades.length) return 0;
+  return winningTrades.reduce((sum, trade) => sum + trade.profitLoss, 0) / winningTrades.length;
+}
+
+export function calculateAverageLoss(trades: Trade[]): number {
+  const losingTrades = trades.filter((trade) => trade.profitLoss < 0);
+  if (!losingTrades.length) return 0;
+  return losingTrades.reduce((sum, trade) => sum + trade.profitLoss, 0) / losingTrades.length;
+}
+
+export function filterTradesByDate(trades: Trade[], days: number): Trade[] {
+  const cutoffDate = new Date();
+  cutoffDate.setDate(cutoffDate.getDate() - days);
+  return trades.filter((trade) => trade.entryTime >= cutoffDate);
+}

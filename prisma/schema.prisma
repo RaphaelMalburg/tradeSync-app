@@ -46,6 +46,15 @@ model Trade {
   aiInsights    AIInsight[]
   Account       Account?      @relation(fields: [accountId], references: [id])
   accountId     String?
+  symbol        String?
+  side          String?
+  status        String?
+  volume        Float?
+  date          DateTime?
+  setup         String[]
+  timeframe     String?
+  riskReward    Float?
+  commission    Float?
 }
 
 model Position {

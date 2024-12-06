@@ -1,11 +1,12 @@
-"use client";
-
 import { Activity, BarChart, TrendingUp, BrainCircuit } from "lucide-react";
-import { usePathname } from "next/navigation";
-import Link from "next/link";
 
-export default function DashboardLayout({ children }: { children: React.ReactNode }) {
-  const pathname = usePathname();
+import { getAccounts } from "@/lib/actions/accounts";
+import { AccountDialog } from "@/components/features/dashboard/account/AccountDialog";
+import { AccountSelector } from "@/components/features/dashboard/account/AccountSelector";
+import { DashboardNav } from "@/components/features/dashboard/layout/DashboardNav";
+
+export default async function DashboardLayout({ children }: { children: React.ReactNode }) {
+  const accounts = await getAccounts();
 
   const dashboardItems = [
     { label: "Overview", href: "/dashboard", icon: <BarChart className="h-5 w-5" /> },
@@ -19,22 +20,15 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
       {/* Desktop Sidebar */}
       <div className="hidden md:flex w-64 flex-col fixed inset-y-0">
         <div className="flex-1 flex flex-col min-h-0 border-r bg-background/80 backdrop-blur-lg">
-          <div className="flex-1 flex flex-col pt-5 pb-4 overflow-y-auto">
-            <div className="flex items-center flex-shrink-0 px-4">
+          <div className="flex-1 flex flex-col pt-20 pb-4 overflow-y-auto">
+            <div className="flex items-center justify-between flex-shrink-0 px-4">
               <span className="text-xl font-semibold">Dashboard</span>
+              <AccountDialog />
             </div>
-            <nav className="mt-5 flex-1 px-2 space-y-1">
-              {dashboardItems.map((item) => (
-                <Link
-                  key={item.href}
-                  href={item.href}
-                  className={`flex items-center px-4 py-3 text-sm rounded-lg transition-colors
-                    ${pathname === item.href ? "bg-primary/10 text-primary" : "text-muted-foreground hover:bg-accent/50"}`}>
-                  {item.icon}
-                  <span className="ml-3">{item.label}</span>
-                </Link>
-              ))}
-            </nav>
+            <div className="px-4 mt-4">
+              <AccountSelector accounts={accounts} currentAccountId={accounts[0]?.id} />
+            </div>
+            <DashboardNav items={dashboardItems} />
           </div>
         </div>
       </div>
@@ -46,18 +40,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
       {/* Mobile Bottom Navigation */}
       <div className="fixed bottom-0 left-0 right-0 border-t bg-background/80 backdrop-blur-lg md:hidden">
-        <div className="grid grid-cols-4 px-2 py-1">
-          {dashboardItems.map((item) => (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={`flex flex-col items-center justify-center p-2 text-xs
-                ${pathname === item.href ? "text-primary" : "text-muted-foreground hover:text-primary"}`}>
-              {item.icon}
-              <span className="mt-1 text-[10px]">{item.label}</span>
-            </Link>
-          ))}
-        </div>
+        <DashboardNav items={dashboardItems} mobile />
       </div>
     </div>
   );

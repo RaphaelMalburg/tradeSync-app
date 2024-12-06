@@ -1,114 +1,135 @@
 import { NextRequest, NextResponse } from "next/server";
-import { updateUserPerformanceMetrics } from "@/services/performanceService"; // Import the new service
 import { db } from "@/lib/db";
 
 export async function POST(req: NextRequest) {
-  const data = await req.json();
-  console.log("Received Data:", data); // Log incoming data for inspection
   try {
     // Validate API key from headers
     const apiKey = req.headers.get("x-api-key");
-    console.log("API Key:", apiKey);
+    const accountId = req.headers.get("x-account-id") ?? "default"; // Add account ID header
+
     if (!apiKey) {
-      console.log("Error: API key is required");
       return NextResponse.json({ error: "API key is required" }, { status: 401 });
+    }
+
+    if (!accountId) {
+      return NextResponse.json({ error: "Account ID is required" }, { status: 401 });
     }
 
     // Find user by API key
     const user = await db.user.findUnique({
       where: { apiKey },
+      include: {
+        Account: true, // Include accounts to validate accountId
+      },
     });
 
     if (!user) {
-      console.log("Error: Invalid API key");
       return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
     }
 
-    const eventType = data.eventType;
-    console.log("Event Type:", eventType); // Log the event type
-
-    if (eventType === "POSITION_OPENED") {
-      // Handle position opening
-      console.log("Handling POSITION_OPENED event");
-      await db.position.create({
-        data: {
-          positionId: data.tradeId,
-          price: data.entryPrice,
-          timestamp: new Date(data.entryTime),
-          rawData: JSON.stringify(data),
-        },
-      });
-
-      return NextResponse.json({ message: "Position recorded" }, { status: 201 });
-    } else if (eventType === "POSITION_CLOSED") {
-      // Create or update trade record
-      console.log("Handling POSITION_CLOSED event");
-      const trade = await db.trade.create({
-        data: {
-          tradeId: data.tradeId,
-          userId: user.id,
-          instrument: data.instrument,
-          entryPrice: data.entryPrice,
-          exitPrice: data.exitPrice,
-          positionSize: data.positionSize,
-          profitLoss: data.profitLoss,
-          entryTime: new Date(data.entryTime),
-          exitTime: new Date(data.exitTime),
-          duration: data.duration,
-          stopLoss: data.stopLoss ? data.stopLoss : undefined,
-          takeProfit: data.takeProfit ? data.takeProfit : undefined,
-          strategy: data.strategy,
-          notes: data.notes,
-          positionType: data.positionType === "BUY" ? "Buy" : "Sell",
-          sentiment: data.profitLoss > 0 ? "Positive" : data.profitLoss < 0 ? "Negative" : "Neutral",
-          accountId: data.accountId,
-        },
-      });
-
-      // Generate AI insight for the trade
-      const aiInsight = await generateTradeInsight(trade);
-      await db.aIInsight.create({
-        data: {
-          tradeReference: trade.tradeId,
-          userId: user.id,
-          insightText: aiInsight,
-        },
-      });
-
-      // Update user's performance metrics
-      await updateUserPerformanceMetrics(user.id); // Call to the service to update performance metrics
-
-      return NextResponse.json(
-        {
-          message: "Trade recorded successfully",
-          tradeId: trade.tradeId,
-        },
-        { status: 201 }
-      );
+    // Validate account belongs to user
+    if (accountId && !user.Account.some((account) => account.id === accountId)) {
+      return NextResponse.json({ error: "Invalid account ID" }, { status: 401 });
     }
 
-    console.log("Error: Invalid event type");
+    const data = await req.json();
+    const eventType = data.eventType;
+
+    if (eventType === "POSITION_OPENED") {
+      await db.trade.create({
+        data: {
+          userId: user.id,
+          accountId: accountId,
+          tradeId: data.tradeId,
+          instrument: data.instrument,
+          entryPrice: data.entryPrice,
+          positionSize: data.positionSize,
+          entryTime: new Date(data.entryTime),
+          positionType: data.positionType,
+          stopLoss: data.stopLoss,
+          takeProfit: data.takeProfit,
+          exitPrice: 0,
+          profitLoss: 0,
+          exitTime: new Date(),
+          duration: 0,
+          commission: data.commission,
+        },
+      });
+
+      return NextResponse.json({ message: "Trade recorded" }, { status: 201 });
+    } else if (eventType === "POSITION_CLOSED") {
+      const trade = await db.trade.update({
+        where: {
+          tradeId: data.tradeId,
+          userId: user.id,
+        },
+        data: {
+          exitPrice: data.exitPrice,
+          exitTime: new Date(data.exitTime),
+          profitLoss: data.profitLoss,
+          duration: data.duration,
+          commission: data.commission,
+        },
+      });
+
+      // Update performance metrics for the account
+      await updateAccountPerformance(user.id, accountId);
+
+      return NextResponse.json({ message: "Trade updated" }, { status: 200 });
+    }
+
     return NextResponse.json({ error: "Invalid event type" }, { status: 400 });
   } catch (error) {
-    console.error("Error processing trade:", error);
-    console.error("Received Data:", data); // Log the incoming data
+    console.error("API Error:", error);
     return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 
-interface Trade {
-  instrument: string;
-  profitLoss: number;
-  duration: number;
-  entryPrice: number;
-  exitPrice: number;
-}
+async function updateAccountPerformance(userId: string, accountId: string) {
+  // Get all closed trades for this account
+  const trades = await db.trade.findMany({
+    where: {
+      userId,
+      accountId,
+      exitPrice: { gt: 0 }, // Changed from not: null to gt: 0
+    },
+    orderBy: {
+      exitTime: "desc",
+    },
+  });
 
-async function generateTradeInsight(trade: Trade) {
-  // Implement your AI insight generation logic here
-  // This could involve calling an AI service or implementing custom logic
-  return `Trade analysis for ${trade.instrument}:
-          ${trade.profitLoss > 0 ? "Profitable" : "Loss"} trade with
-          ${trade.duration} seconds duration.
-          Entry: ${trade.entryPrice}, Exit: ${trade.exitPrice}`;
+  if (trades.length === 0) return;
+
+  // Calculate performance metrics
+  const winningTrades = trades.filter((t) => t.profitLoss > 0);
+  const winRate = (winningTrades.length / trades.length) * 100;
+  const averageProfitLoss = trades.reduce((sum, t) => sum + t.profitLoss, 0) / trades.length;
+
+  // Calculate max drawdown
+  let maxDrawdown = 0;
+  let peak = 0;
+  let runningPL = 0;
+
+  trades.forEach((trade) => {
+    runningPL += trade.profitLoss;
+    if (runningPL > peak) {
+      peak = runningPL;
+    }
+    const drawdown = peak - runningPL;
+    if (drawdown > maxDrawdown) {
+      maxDrawdown = drawdown;
+    }
+  });
+
+  // Update or create performance record
+  await db.performance.create({
+    data: {
+      userId,
+      accountId,
+      winRate,
+      averageProfitLoss,
+      maxDrawdown,
+      averageHoldingTime: trades.reduce((sum, t) => sum + t.duration, 0) / trades.length,
+    },
+  });
 }

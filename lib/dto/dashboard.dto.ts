@@ -1,5 +1,7 @@
 export interface DashboardTradeDTO {
   id: string;
+  createdAt: Date;
+  tradeId: string;
   instrument: string;
   entryPrice: number;
   exitPrice: number;
@@ -11,15 +13,22 @@ export interface DashboardTradeDTO {
   positionType: string;
   sentiment: string;
   screenshotUrl?: string;
+  setup?: string[];
+  riskReward?: number;
+  accountId: string | null;
+  strategy?: string;
 }
 
 export interface DashboardPerformanceDTO {
   id: string;
+  createdAt: Date;
   winRate: number;
-  averageHoldingTime: number;
   averageProfitLoss: number;
   maxDrawdown: number;
-  createdAt: Date;
+  averageHoldingTime: number;
+  profitFactor: number;
+  averageRisk?: number;
+  averageReward?: number;
 }
 
 export interface DashboardAIInsightDTO {
@@ -29,17 +38,9 @@ export interface DashboardAIInsightDTO {
 
 export interface DashboardDTO {
   trades: DashboardTradeDTO[];
+  recentTrades: TradeDTO[];
   performance: DashboardPerformanceDTO[];
   insights?: DashboardAIInsightDTO[];
-}
-
-export interface PerformanceDTO {
-  id: string;
-  createdAt: Date;
-  winRate: number;
-  averageProfitLoss: number;
-  maxDrawdown: number;
-  averageHoldingTime: number;
 }
 
 export interface TradeDTO {
@@ -53,7 +54,19 @@ export interface TradeDTO {
   exitTime: Date;
 }
 
-export interface DashboardDTO {
-  performance: PerformanceDTO[];
-  recentTrades: TradeDTO[];
+export interface EnhancedTradeDTO {
+  id: string;
+  symbol: string;
+  entryPrice: number;
+  exitPrice: number;
+  profitLoss: number;
+  side: "LONG" | "SHORT";
+  status: "WIN" | "LOSS";
+  date: Date;
+  setup: string[];
+  riskReward?: number;
+  volume: number;
+  tags: string[];
+  timeframe: string;
+  strategy?: string;
 }

@@ -3,7 +3,7 @@
 import { db } from "@/lib/db";
 import { Trade } from "@prisma/client";
 
-export async function getTrades(userId: string): Promise<Trade[]> {
+export async function getTrades(userId: string, accountId?: string): Promise<Trade[]> {
   if (!userId) {
     return [];
   }
@@ -12,6 +12,7 @@ export async function getTrades(userId: string): Promise<Trade[]> {
     const trades = await db.trade.findMany({
       where: {
         userId: userId,
+        accountId: accountId,
       },
       orderBy: {
         entryTime: "desc",
@@ -26,7 +27,7 @@ export async function getTrades(userId: string): Promise<Trade[]> {
   }
 }
 
-export async function getRecentTrades(userId: string): Promise<Trade[]> {
+export async function getRecentTrades(userId: string, accountId?: string): Promise<Trade[]> {
   if (!userId) {
     return [];
   }
@@ -35,6 +36,7 @@ export async function getRecentTrades(userId: string): Promise<Trade[]> {
     const trades = await db.trade.findMany({
       where: {
         userId: userId,
+        accountId: accountId,
       },
       orderBy: {
         entryTime: "desc",
