@@ -8,6 +8,9 @@ export async function getPerformance(userId: string, accountId?: string) {
       userId: userId,
       accountId: accountId,
     },
+    include: {
+      trades: true,
+    },
     orderBy: { createdAt: "desc" },
     take: 30,
   });

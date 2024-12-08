@@ -1,22 +1,23 @@
+import { Sentiment } from "@prisma/client";
+
 export interface DashboardTradeDTO {
   id: string;
-  createdAt: Date;
-  tradeId: string;
   instrument: string;
   entryPrice: number;
   exitPrice: number;
-  positionSize: number;
   profitLoss: number;
+  positionType: string;
   entryTime: Date;
   exitTime: Date;
   duration: number;
-  positionType: string;
-  sentiment: string;
-  screenshotUrl?: string;
-  setup?: string[];
+  sentiment: Sentiment;
+  strategyId?: string;
+  strategyName?: string;
+  commission?: number;
   riskReward?: number;
-  accountId: string | null;
-  strategy?: string;
+  setup: string[];
+  symbol?: string;
+  timeframe?: string;
 }
 
 export interface DashboardPerformanceDTO {
@@ -29,6 +30,7 @@ export interface DashboardPerformanceDTO {
   profitFactor: number;
   averageRisk?: number;
   averageReward?: number;
+  trades: DashboardTradeDTO[];
 }
 
 export interface DashboardAIInsightDTO {

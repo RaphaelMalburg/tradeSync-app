@@ -20,6 +20,7 @@ model User {
   performance Performance[]
   aiInsights  AIInsight[]
   Account     Account[]
+  strategies  Strategy[]
 }
 
 model Trade {
@@ -36,11 +37,12 @@ model Trade {
   stopLoss      Float?
   takeProfit    Float?
   screenshotUrl String?
-  strategy      String?
+  strategy      Strategy?     @relation(fields: [strategyId], references: [id])
+  strategyId    String?
   notes         String?
   positionType  PositionType?
   createdAt     DateTime      @default(now())
-  sentiment     Sentiment?    @default(Neutral)
+  sentiment     Sentiment     @default(Neutral)
   userId        String
   user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
   aiInsights    AIInsight[]
@@ -55,6 +57,10 @@ model Trade {
   timeframe     String?
   riskReward    Float?
   commission    Float?
+  hourOfDay     Int?
+  profitFactor  Float?
+  performance   Performance?  @relation(fields: [performanceId], references: [id])
+  performanceId String?
 }
 
 model Position {
@@ -74,6 +80,7 @@ model Performance {
   averageProfitLoss  Float
   maxDrawdown        Float
   user               User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  trades             Trade[]
   createdAt          DateTime @default(now())
   Account            Account? @relation(fields: [accountId], references: [id])
   accountId          String?
@@ -152,4 +159,17 @@ model Order {
 
   @@index([userId])
   @@index([email])
+}
+
+model Strategy {
+  id          String   @id @default(cuid())
+  name        String   @unique
+  description String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  trades      Trade[]
+  userId      String
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
 }

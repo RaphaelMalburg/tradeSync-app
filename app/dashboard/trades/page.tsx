@@ -1,20 +1,10 @@
-import { checkUser } from "@/lib/checkUser";
-import { getTrades } from "@/lib/actions/trades";
-import { DashboardTradeDTO } from "@/lib/dto/dashboard.dto";
 import Trades from "@/components/features/dashboard/trades/Trades";
-import { getAccounts } from "@/lib/actions/accounts";
-import { redirect } from "next/navigation";
+import { getPagedTrades, getTradeStatistics } from "@/lib/actions/trades";
 
-export default async function TradesPage({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
-  const user = await checkUser();
-  const accounts = await getAccounts();
-  const accountId = searchParams.accountId as string;
+const INITIAL_TRADES_COUNT = 20;
 
-  if (!accountId && accounts.length > 0) {
-    redirect(`/dashboard/trades?accountId=${accounts[0].id}`);
-  }
+export default async function TradesPage() {
+  const [initialTrades, initialStatistics] = await Promise.all([getPagedTrades(1, INITIAL_TRADES_COUNT), getTradeStatistics()]);
 
-  const trades = (await getTrades(user?.id ?? "", accountId)) as DashboardTradeDTO[];
-
-  return <Trades trades={trades} />;
+  return <Trades initialTrades={initialTrades} initialStatistics={initialStatistics} />;
 }

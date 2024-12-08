@@ -1,0 +1,4 @@
+-- AlterTable
+ALTER TABLE "Trade" ALTER COLUMN "strategy" SET NOT NULL,
+ALTER COLUMN "strategy" SET DEFAULT '',
+ALTER COLUMN "strategy" SET DATA TYPE TEXT;
