@@ -40,33 +40,32 @@ export interface DashboardDTO {
   recentTrades: DashboardTradeDTO[];
 }
 
-export default async function TradingDashboard({ searchParams }: { searchParams: { [key: string]: string | string[] | undefined } }) {
-  // Convert searchParams to a regular object first
-  const params = Object.fromEntries(Object.entries(await searchParams));
+type SearchParams = Promise<{ [key: string]: string | string[] | undefined }>;
 
+async function getPageData(userId: string, accountId?: string) {
+  const [accounts, trades, performance] = await Promise.all([
+    getAccounts(),
+    accountId ? getRecentTrades(userId, accountId) : Promise.resolve([]),
+    accountId ? getAggregatedPerformance(userId, accountId, 30) : Promise.resolve([]),
+  ]);
+
+  return { accounts, trades, performance };
+}
+
+export default async function TradingDashboard({ searchParams }: { searchParams: SearchParams }) {
+  const params = Object.fromEntries(Object.entries(await searchParams));
   const accountId = params.accountId;
 
   const user = await checkUser();
   const userId = user?.id ?? "";
 
-  // Get accounts and handle account selection
-  const accounts = await getAccounts();
+  const { accounts, trades, performance } = await getPageData(userId, Array.isArray(accountId) ? accountId[0] : accountId);
 
   if (!accountId && accounts.length > 0) {
     redirect(`/dashboard?accountId=${accounts[0].id}`);
   }
 
-  // Convert accountId to string or undefined
-  const accountIdString = Array.isArray(accountId) ? accountId[0] : accountId;
-
-  // Get trades and performance data for selected account
-  const tradesRaw = await getRecentTrades(userId, accountIdString);
-  const performance = await getAggregatedPerformance(userId, accountIdString, 30);
-
-  console.log("performance ", performance);
-
-  console.log("tradesRaw ", tradesRaw);
-  const dashboardData = mapToDashboardDTO(performance, tradesRaw);
+  const dashboardData = mapToDashboardDTO(performance, trades);
 
   return (
     <div className="flex h-screen w-full">
