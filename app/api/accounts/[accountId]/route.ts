@@ -1,7 +1,7 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { checkUser } from "@/lib/checkUser";
-export const runtime = "edge";
 
 export async function GET(request: NextRequest, { params }: { params: { accountId: string } }) {
   try {
@@ -40,7 +40,6 @@ export async function PUT(request: NextRequest, { params }: { params: { accountI
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const account = await db.account.update({
       where: {
         id: accountId,
