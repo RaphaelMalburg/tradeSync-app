@@ -2,12 +2,18 @@ import { redirect } from "next/navigation";
 import { stripe } from "@/lib/stripe";
 import { SuccessContent } from "@/components/store/SuccessContent";
 
-export default async function SuccessPage({ searchParams }: { searchParams: { session_id: string } }) {
-  if (!searchParams.session_id) {
+interface PageProps {
+  searchParams: { [key: string]: string | string[] | undefined };
+}
+
+export default async function SuccessPage({ searchParams }: PageProps) {
+  const sessionId = searchParams.session_id as string;
+
+  if (!sessionId) {
     redirect("/");
   }
 
-  const stripeSession = await stripe.checkout.sessions.retrieve(searchParams.session_id, {
+  const stripeSession = await stripe.checkout.sessions.retrieve(sessionId, {
     expand: ["line_items"],
   });
 

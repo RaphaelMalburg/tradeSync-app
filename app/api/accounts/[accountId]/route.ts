@@ -9,7 +9,8 @@ type RouteContext = {
 
 export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const { accountId } = await context.params;
+    const params = await context.params;
+    const { accountId } = params;
 
     const user = await checkUser();
     if (!user) {
@@ -36,7 +37,8 @@ export async function GET(request: NextRequest, context: RouteContext) {
 
 export async function PUT(request: NextRequest, context: RouteContext) {
   try {
-    const { accountId } = await context.params;
+    const params = await context.params;
+    const { accountId } = params;
     const data = await request.json();
 
     const user = await checkUser();
@@ -63,7 +65,9 @@ export async function PUT(request: NextRequest, context: RouteContext) {
 
 export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
-    const { accountId } = await context.params;
+    const params = await context.params;
+    const { accountId } = params;
+
     const user = await checkUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
