@@ -2,8 +2,17 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { checkUser } from "@/lib/checkUser";
 
-export async function GET(req: NextRequest, { params }: { params: { accountId: string } }) {
+type RouteParams = {
+  params: {
+    accountId: string;
+  };
+  searchParams?: { [key: string]: string | string[] | undefined };
+};
+
+export async function GET(request: NextRequest, context: RouteParams) {
   try {
+    const { accountId } = context.params;
+
     const user = await checkUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -11,7 +20,7 @@ export async function GET(req: NextRequest, { params }: { params: { accountId: s
 
     const account = await db.account.findUnique({
       where: {
-        id: params.accountId,
+        id: accountId,
         userId: user.id,
       },
     });
@@ -22,36 +31,37 @@ export async function GET(req: NextRequest, { params }: { params: { accountId: s
 
     return NextResponse.json(account);
   } catch (error) {
-    console.error("Failed to fetch account:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    console.error("Error fetching account:", error);
+    return NextResponse.json({ error: "Failed to fetch account" }, { status: 500 });
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { accountId: string } }) {
+export async function PUT(request: NextRequest, context: RouteParams) {
   try {
+    const { accountId } = context.params;
+    const data = await request.json();
+
     const user = await checkUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
 
-    const data = await req.json();
-    const { name, accountType } = data;
-
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
     const account = await db.account.update({
       where: {
-        id: params.accountId,
+        id: accountId,
         userId: user.id,
       },
       data: {
-        name,
-        accountType,
+        name: data.name,
+        accountType: data.accountType,
       },
     });
 
-    return NextResponse.json(account);
+    return NextResponse.json({ accountId, ...data });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Failed to update account:", error);
-    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
+    return NextResponse.json({ error: "Failed to update account" }, { status: 500 });
   }
 }
 
