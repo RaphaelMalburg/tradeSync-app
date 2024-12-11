@@ -5,11 +5,12 @@ import { LineChart, Line, XAxis, YAxis, Tooltip, ResponsiveContainer, Brush } fr
 import { format } from "date-fns";
 import { CustomTooltip } from "./CustomTooltip";
 import { useEffect, useState } from "react";
-import { getPerformance } from "@/lib/actions/performace";
+
 import { useSearchParams } from "next/navigation";
 import { User } from "@prisma/client";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Trade, PerformanceWithStats } from "@/types/index";
+import { getPerformance } from "@/lib/actions/performance";
 
 interface AnalyticsProps {
   userData: User;

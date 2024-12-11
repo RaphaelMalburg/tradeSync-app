@@ -1,6 +1,5 @@
 import { DashboardAIInsightDTO, DashboardTradeDTO } from "@/lib/dto/dashboard.dto";
 
-import { getPerformance } from "@/lib/actions/performace";
 import { checkUser } from "@/lib/checkUser";
 import { DashboardPerformanceDTO } from "@/lib/dto/dashboard.dto";
 import { mapToDashboardDTO } from "@/lib/mappers/dashboardMapper";
@@ -8,6 +7,7 @@ import { getRecentTrades } from "@/lib/actions/trades";
 import { getAccounts } from "@/lib/actions/accounts";
 import { redirect } from "next/navigation";
 import { DashboardContent } from "@/components/features/dashboard/layout/DashboardContent";
+import { getAggregatedPerformance } from "@/lib/actions/performance";
 
 export interface DashboardDTO {
   trades: DashboardTradeDTO[];
@@ -61,7 +61,7 @@ export default async function TradingDashboard({ searchParams }: { searchParams:
 
   // Get trades and performance data for selected account
   const tradesRaw = await getRecentTrades(userId, accountIdString);
-  const performance = await getPerformance(userId, accountIdString);
+  const performance = await getAggregatedPerformance(userId, accountIdString, 30);
 
   console.log("performance ", performance);
 

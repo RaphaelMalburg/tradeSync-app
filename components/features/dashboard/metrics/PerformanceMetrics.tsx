@@ -1,54 +1,54 @@
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Activity, TrendingUp, BarChart2, Timer } from "lucide-react";
-import { DashboardPerformanceDTO } from "@/lib/dto/dashboard.dto";
-import { formatCurrency } from "@/lib/formatters";
+"use client";
 
-interface PerformanceMetricsProps {
-  performance: DashboardPerformanceDTO;
+import { useEffect, useState } from "react";
+import { getCurrentDayPerformance, getAggregatedPerformance } from "@/lib/actions/performance";
+import { Card } from "@/components/ui/card";
+import { Performance } from "@prisma/client";
+
+interface Metrics {
+  winRate: number;
+  averageProfitLoss: number;
+  totalTrades: number;
+  averageHoldingTime: number;
 }
 
-export function PerformanceMetrics({ performance }: PerformanceMetricsProps) {
-  const metrics = [
-    {
-      title: "Account Return",
-      value: formatCurrency(performance.averageProfitLoss * performance.totalTrades),
-      icon: <TrendingUp className="h-4 w-4 text-muted-foreground" />,
-      description: "Total return",
-    },
-    {
-      title: "Profit Factor",
-      value: performance.profitFactor.toFixed(2),
-      icon: <BarChart2 className="h-4 w-4 text-muted-foreground" />,
-      description: "Gross profit / Gross loss",
-    },
-    {
-      title: "Win Rate",
-      value: `${performance.winRate.toFixed(1)}%`,
-      icon: <Activity className="h-4 w-4 text-muted-foreground" />,
-      description: `${performance.consecutiveWins} win streak`,
-    },
-    {
-      title: "Avg Duration",
-      value: `${performance.averageHoldingTime} min`,
-      icon: <Timer className="h-4 w-4 text-muted-foreground" />,
-      description: "Per trade",
-    },
-  ];
+export function PerformanceMetrics({ userId, accountId }: { userId: string; accountId?: string }) {
+  const [currentMetrics, setCurrentMetrics] = useState<Metrics | null>(null);
+
+  useEffect(() => {
+    async function loadMetrics() {
+      // Get real-time metrics
+      const current = await getCurrentDayPerformance(userId, accountId);
+      setCurrentMetrics(current);
+    }
+
+    loadMetrics();
+    // Refresh real-time metrics every minute
+    const interval = setInterval(loadMetrics, 60000);
+
+    return () => clearInterval(interval);
+  }, [userId, accountId]);
+
+  if (!currentMetrics) return <div>Loading...</div>;
 
   return (
-    <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
-      {metrics.map((metric, i) => (
-        <Card key={i}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{metric.title}</CardTitle>
-            {metric.icon}
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{metric.value}</div>
-            <p className="text-xs text-muted-foreground">{metric.description}</p>
-          </CardContent>
-        </Card>
-      ))}
+    <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+      <Card className="p-4">
+        <h3 className="text-sm font-medium">Today&apos;s Win Rate</h3>
+        <p className="text-2xl font-bold">{currentMetrics.winRate.toFixed(2)}%</p>
+      </Card>
+      <Card className="p-4">
+        <h3 className="text-sm font-medium">Average P/L</h3>
+        <p className="text-2xl font-bold">${currentMetrics.averageProfitLoss.toFixed(2)}</p>
+      </Card>
+      <Card className="p-4">
+        <h3 className="text-sm font-medium">Total Trades</h3>
+        <p className="text-2xl font-bold">{currentMetrics.totalTrades}</p>
+      </Card>
+      <Card className="p-4">
+        <h3 className="text-sm font-medium">Avg Holding Time</h3>
+        <p className="text-2xl font-bold">{(currentMetrics.averageHoldingTime / (1000 * 60)).toFixed(0)}m</p>
+      </Card>
     </div>
   );
 }
