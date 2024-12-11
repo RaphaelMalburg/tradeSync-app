@@ -184,6 +184,10 @@ export default function Trades({ initialTrades, initialStatistics }: TradesProps
     </TableHead>
   );
 
+  const handleScroll = useCallback(() => {
+    // ... existing code
+  }, [loadMoreTrades]);
+
   return (
     <div className="p-6 space-y-6">
       {/* Strategy Management Section */}

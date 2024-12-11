@@ -1,6 +1,12 @@
 import { db } from "@/lib/db";
 
-export async function createOrder(orderData: { userId: string; sessionId: string; items: any[]; total: number; email: string }) {
+interface OrderData {
+  // Define your order properties here
+  id: string;
+  // ... other properties
+}
+
+export async function createOrder(orderData: { userId: string; sessionId: string; items: OrderData[]; total: number; email: string }) {
   return await db.order.create({
     data: {
       userId: orderData.userId,

@@ -22,19 +22,6 @@ export async function POST(req: Request) {
     // Get current user if logged in
     const user = await currentUser();
 
-    let dbUser = null;
-    if (!user && email) {
-      // Create a new user if not logged in
-      dbUser = await db.user.create({
-        data: {
-          email: email,
-          name: "Guest User",
-          imageUrl: "",
-          clerkUserId: "guest",
-        },
-      });
-    }
-
     // Create line items for Stripe
     const lineItems = cartItems.map((item: CartItem) => ({
       price_data: {

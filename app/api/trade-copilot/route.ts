@@ -16,10 +16,14 @@ Trade Setup Details: {trade_details}
 
 Based on this information, should the trade be taken? If so, provide advice on entry points, stop loss, and take profit levels.`;
 
+interface TradeData {
+  [key: string]: unknown;
+}
+
 export async function POST(req: Request) {
   try {
     const { tradeDetails, image } = await req.json(); // Expect trade details and an image
-    const imageBuffer = Buffer.from(image, 'base64'); // Decode base64 image data
+    const imageBuffer = Buffer.from(image, "base64"); // Decode base64 image data
 
     // Step 1: Analyze the Image (Placeholder function)
     const imageAnalysis = await analyzeImageForTradeInsights(imageBuffer);
@@ -56,7 +60,6 @@ export async function POST(req: Request) {
 
     // Respond with the streaming text response
     return new StreamingTextResponse(stream.pipeThrough(createStreamDataTransformer()));
-
   } catch (e: any) {
     console.error("Error in trade analysis endpoint:", e);
     return Response.json({ error: e.message }, { status: e.status ?? 500 });
