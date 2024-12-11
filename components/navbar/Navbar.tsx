@@ -5,7 +5,6 @@ import { Info, Mail, LineChart, ShoppingCart, SquareFunction } from "lucide-reac
 import { NavbarDropdown } from "./NavbarDropdown";
 import { MobileNav } from "./MobileNav";
 import Image from "next/image";
-import { useState } from "react";
 import { CartDrawer } from "../store/CartDrawer";
 
 export default function Navbar() {

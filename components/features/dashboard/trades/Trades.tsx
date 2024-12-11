@@ -10,7 +10,7 @@ import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@
 import { DashboardTradeDTO } from "@/lib/dto/dashboard.dto";
 import { Sentiment } from "@prisma/client";
 import { formatDuration } from "@/lib/utils";
-import { updateTradeStrategy, updateTradeSentiment, updateStrategy, getPagedTrades, getTradeStatistics, TradeStatistics } from "@/lib/actions/trades";
+import { updateTradeStrategy, updateTradeSentiment, updateStrategy, getPagedTrades } from "@/lib/actions/trades";
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
@@ -142,7 +142,7 @@ export default function Trades({ initialTrades, initialStatistics }: TradesProps
     } finally {
       setLoading(false);
     }
-  }, [loading, hasMore, page, setTrades, setPage, setHasMore]);
+  }, [loading, hasMore, page]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -204,7 +204,7 @@ export default function Trades({ initialTrades, initialStatistics }: TradesProps
 
     element.addEventListener("scroll", handleScroll);
     return () => element.removeEventListener("scroll", handleScroll);
-  }, [handleScroll, loadMoreTrades]);
+  }, [handleScroll]);
 
   return (
     <div className="p-6 space-y-6">

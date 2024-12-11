@@ -11,7 +11,7 @@ import { useUser } from "@clerk/nextjs";
 import { ScrollArea } from "../ui/scroll-area";
 
 export function CartDrawerContent() {
-  const { items, total, clearCart } = useCartStore();
+  const { items, total } = useCartStore();
   const [isCheckingOut, setIsCheckingOut] = useState(false);
   const { user } = useUser();
   const [email, setEmail] = useState("");

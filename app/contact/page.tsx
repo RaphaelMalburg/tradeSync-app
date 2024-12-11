@@ -1,6 +1,7 @@
-import { ArrowRight, Mail, MapPin, Phone } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { MapPin, Phone } from "lucide-react";
 import { BackgroundBeams } from "@/components/ui/background-beams";
 
 export default function ContactPage() {
