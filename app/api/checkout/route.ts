@@ -1,7 +1,6 @@
 import { stripe } from "@/lib/stripe";
 import { NextResponse } from "next/server";
 
-import { db } from "@/lib/db";
 import { sendOrderConfirmation } from "@/lib/email";
 import { createOrder } from "@/lib/db/orders";
 import { currentUser } from "@clerk/nextjs/server";

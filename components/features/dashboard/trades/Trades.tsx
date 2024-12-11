@@ -48,6 +48,7 @@ export default function Trades({ initialTrades, initialStatistics }: TradesProps
   const [editingStrategy, setEditingStrategy] = useState<Strategy | null>(null);
   const [sortField, setSortField] = useState<SortField>("date");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     fetchStrategies();
@@ -185,8 +186,22 @@ export default function Trades({ initialTrades, initialStatistics }: TradesProps
   );
 
   const handleScroll = useCallback(() => {
-    // ... existing code
+    const element = scrollContainerRef.current;
+    if (!element) return;
+
+    const { scrollTop, scrollHeight, clientHeight } = element;
+    if (scrollHeight - scrollTop <= clientHeight * 1.5) {
+      loadMoreTrades();
+    }
   }, [loadMoreTrades]);
+
+  useEffect(() => {
+    const element = scrollContainerRef.current;
+    if (!element) return;
+
+    element.addEventListener("scroll", handleScroll);
+    return () => element.removeEventListener("scroll", handleScroll);
+  }, [handleScroll]);
 
   return (
     <div className="p-6 space-y-6">

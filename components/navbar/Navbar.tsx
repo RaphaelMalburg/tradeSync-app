@@ -1,7 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { LineChart, Info, Mail, Menu, ChartSpline, Star, SquareFunction, ShoppingCart } from "lucide-react";
+import { UserButton } from "@clerk/nextjs";
+import { Home, Settings } from "lucide-react";
+import { ModeToggle } from "@/components/mode-toggle";
+import { AccountSwitcher } from "@/components/features/dashboard/account/account-switcher";
+import { MainNav } from "@/components/navbar/main-nav";
+import { Search } from "@/components/navbar/search";
+import { UserNav } from "@/components/navbar/user-nav";
 import { Button } from "@/components/ui/button";
 import { NavbarDropdown } from "./NavbarDropdown";
 import { usePathname } from "next/navigation";

@@ -39,7 +39,7 @@ export async function POST(req: NextRequest) {
         const filename = `${Date.now()}-${data.tradeId}.png`;
 
         // Upload to Supabase Storage
-        const { data: uploadData, error } = await supabase.storage.from("trade-charts").upload(filename, buffer, {
+        const { error } = await supabase.storage.from("trade-charts").upload(filename, buffer, {
           contentType: "image/png",
           cacheControl: "3600",
         });

@@ -1,40 +1,26 @@
 "use client";
 import { useEffect } from "react";
-import { motion, stagger, useAnimate } from "framer-motion";
+import { motion, useAnimationControls } from "framer-motion";
 import { cn } from "@/lib/utils";
 
-export const TextGenerateEffect = ({ words, className, filter = true, duration = 0.5 }: { words: string; className?: string; filter?: boolean; duration?: number }) => {
-  const [scope, animate] = useAnimate();
-  let wordsArray = words.split(" ");
-  useEffect(() => {
-    if (!scope.current) return;
-    animate();
-  }, [words, animate, duration, filter]);
+export const TextGenerateEffect = ({ words, className }: { words: string; className?: string }) => {
+  const controls = useAnimationControls();
+  const scope = useAnimationControls();
 
-  const renderWords = () => {
-    return (
-      <motion.div ref={scope}>
-        {wordsArray.map((word, idx) => {
-          return (
-            <motion.span
-              key={word + idx}
-              className="dark:text-white text-black opacity-0"
-              style={{
-                filter: filter ? "blur(10px)" : "none",
-              }}>
-              {word}{" "}
-            </motion.span>
-          );
-        })}
-      </motion.div>
-    );
-  };
+  useEffect(() => {
+    controls.start({
+      opacity: 1,
+      transition: {
+        duration: 0.5,
+      },
+    });
+  }, [controls, scope]);
 
   return (
-    <div className={cn("font-bold", className)}>
-      <div className="mt-4">
-        <div className=" dark:text-white text-black text-2xl leading-snug tracking-wide">{renderWords()}</div>
-      </div>
-    </div>
+    <motion.div className={cn("w-full", className)} animate={controls}>
+      <motion.div animate={scope}>
+        <span className="text-left font-normal">{words}</span>
+      </motion.div>
+    </motion.div>
   );
 };
