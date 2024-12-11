@@ -1,10 +1,11 @@
-interface ProfileProps {
+type Props = {
   params: {
     userId: string;
   };
-}
+  searchParams: { [key: string]: string | string[] | undefined };
+};
 
-export default async function Profile({ params }: ProfileProps) {
+export default async function ProfilePage({ params, searchParams }: Props) {
   const { userId } = params;
 
   // Now you can safely use userId
