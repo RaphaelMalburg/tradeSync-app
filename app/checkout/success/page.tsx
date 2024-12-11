@@ -3,11 +3,12 @@ import { stripe } from "@/lib/stripe";
 import { SuccessContent } from "@/components/store/SuccessContent";
 
 interface PageProps {
-  searchParams: { [key: string]: string | string[] | undefined };
+  searchParams: Promise<{ [key: string]: string | string[] | undefined }>;
 }
 
 export default async function SuccessPage({ searchParams }: PageProps) {
-  const sessionId = searchParams.session_id as string;
+  const params = await searchParams;
+  const sessionId = params.session_id as string;
 
   if (!sessionId) {
     redirect("/");
