@@ -2,10 +2,16 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Product } from "@/types";
 
-interface CartItem extends Omit<Product, "icon"> {
+export type CartItem = {
+  id: string;
+  name: string;
+  description: string;
+  price: number;
   quantity: number;
-  iconName: string;
-}
+  icon: React.ReactNode;
+  category: "TradingBot" | "Plugin";
+  features: string[];
+};
 
 interface CartStore {
   items: CartItem[];
