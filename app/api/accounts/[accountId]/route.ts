@@ -2,13 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { checkUser } from "@/lib/checkUser";
 
-interface RouteContext {
-  params: {
-    accountId: string;
-  };
-}
-
-export async function GET(request: NextRequest, { params }: RouteContext) {
+// Update the handler arguments to conform to the expected type
+export async function GET(request: NextRequest, { params }: { params: { accountId: string } }) {
   try {
     const { accountId } = params;
     const user = await checkUser();
@@ -34,7 +29,7 @@ export async function GET(request: NextRequest, { params }: RouteContext) {
   }
 }
 
-export async function PUT(request: NextRequest, { params }: RouteContext) {
+export async function PUT(request: NextRequest, { params }: { params: { accountId: string } }) {
   try {
     const { accountId } = params;
     const data = await request.json();
@@ -57,13 +52,13 @@ export async function PUT(request: NextRequest, { params }: RouteContext) {
     });
 
     return NextResponse.json({ accountId, ...data });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
+    console.error("Failed to update account:", error);
     return NextResponse.json({ error: "Failed to update account" }, { status: 500 });
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: RouteContext) {
+export async function DELETE(request: NextRequest, { params }: { params: { accountId: string } }) {
   try {
     const user = await checkUser();
     if (!user) {
