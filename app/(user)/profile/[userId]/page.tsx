@@ -5,7 +5,7 @@ type Props = {
   searchParams: { [key: string]: string | string[] | undefined };
 };
 
-export default async function ProfilePage({ params, searchParams }: Props) {
+export default async function ProfilePage({ params }: Props) {
   const { userId } = params;
 
   // Now you can safely use userId
