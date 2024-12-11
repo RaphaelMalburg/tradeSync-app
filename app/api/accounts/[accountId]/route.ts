@@ -2,10 +2,10 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { checkUser } from "@/lib/checkUser";
 
-// Update the handler arguments to conform to the expected type
 export async function GET(request: NextRequest, { params }: { params: { accountId: string } }) {
   try {
     const { accountId } = params;
+
     const user = await checkUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -52,8 +52,8 @@ export async function PUT(request: NextRequest, { params }: { params: { accountI
     });
 
     return NextResponse.json({ accountId, ...data });
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
-    console.error("Failed to update account:", error);
     return NextResponse.json({ error: "Failed to update account" }, { status: 500 });
   }
 }
