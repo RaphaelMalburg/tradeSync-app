@@ -8,7 +8,7 @@ import { format } from "date-fns";
 import { PerformanceMetrics } from "@/components/features/dashboard/metrics/PerformanceMetrics";
 import { useUser } from "@clerk/nextjs";
 
-export function DashboardContent({ performance, recentTrades }: DashboardDTO) {
+export function DashboardContent({ performance }: DashboardDTO) {
   const { user } = useUser();
 
   // Prepare chart data

@@ -2,15 +2,9 @@ import { create } from "zustand";
 import { persist } from "zustand/middleware";
 import { Product } from "@/types";
 
-export type CartItem = {
-  id: string;
-  name: string;
-  description: string;
-  price: number;
+export type CartItem = Product & {
   quantity: number;
-  icon: React.ReactNode;
-  category: "TradingBot" | "Plugin";
-  features: string[];
+  iconName?: string;
 };
 
 interface CartStore {

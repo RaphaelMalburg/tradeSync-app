@@ -1,9 +1,8 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getCurrentDayPerformance, getAggregatedPerformance } from "@/lib/actions/performance";
+import { getCurrentDayPerformance } from "@/lib/actions/performance";
 import { Card } from "@/components/ui/card";
-import { Performance } from "@prisma/client";
 
 interface Metrics {
   winRate: number;

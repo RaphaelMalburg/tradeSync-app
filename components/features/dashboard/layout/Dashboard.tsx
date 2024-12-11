@@ -1,14 +1,14 @@
 "use client";
 
-import { DashboardHeader } from "@/components/features/dashboard/layout/DashboardHeader";
-import { DashboardShell } from "@/components/features/dashboard/layout/DashboardShell";
-import { DashboardContent } from "@/components/features/dashboard/layout/DashboardContent";
+import { DashboardHeader } from "./DashboardHeader";
+import { DashboardShell } from "./DashboardShell";
+import { DashboardContent } from "./DashboardContent";
 
 export default function Dashboard() {
   return (
     <DashboardShell>
       <DashboardHeader />
-      <DashboardContent />
+      <DashboardContent trades={[]} recentTrades={[]} performance={[]} />
     </DashboardShell>
   );
 }

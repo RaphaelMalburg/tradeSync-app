@@ -14,7 +14,15 @@ import { updateTradeStrategy, updateTradeSentiment, updateStrategy, getPagedTrad
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from "@/components/ui/tooltip";
 import { InfoCircledIcon } from "@radix-ui/react-icons";
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { ArrowUpDown, ArrowDown, ArrowUp } from "lucide-react";
+import { ArrowDown, ArrowUp } from "lucide-react";
+
+interface TradeStatistics {
+  totalTrades: number;
+  winRate: number;
+  averageProfitLoss: number;
+  profitFactor: number;
+  totalProfitLoss: number;
+}
 
 interface TradesProps {
   initialTrades: DashboardTradeDTO[];
@@ -34,7 +42,7 @@ type SortOrder = "asc" | "desc";
 
 export default function Trades({ initialTrades, initialStatistics }: TradesProps) {
   const [trades, setTrades] = useState<DashboardTradeDTO[]>(initialTrades);
-  const [statistics, setStatistics] = useState<TradeStatistics>(initialStatistics);
+  const [statistics] = useState<TradeStatistics>(initialStatistics);
   const [page, setPage] = useState(1);
   const [loading, setLoading] = useState(false);
   const [hasMore, setHasMore] = useState(true);
@@ -107,35 +115,14 @@ export default function Trades({ initialTrades, initialStatistics }: TradesProps
     }
   };
 
-  const lastTradeElementRef = useCallback(
-    (node: HTMLTableRowElement | null) => {
-      if (loading) return;
-      if (observer.current) observer.current.disconnect();
-
-      observer.current = new IntersectionObserver((entries) => {
-        if (entries[0].isIntersecting && hasMore) {
-          loadMoreTrades();
-        }
-      });
-
-      if (node) observer.current.observe(node);
-    },
-    [loading, hasMore]
-  );
-
   const loadMoreTrades = useCallback(async () => {
     if (loading || !hasMore) return;
-
+    setLoading(true);
     try {
-      setLoading(true);
       const nextPage = page + 1;
       const newTrades = await getPagedTrades(nextPage, TRADES_PER_PAGE);
-
-      if (newTrades.length < TRADES_PER_PAGE) {
-        setHasMore(false);
-      }
-
-      setTrades((prevTrades) => [...prevTrades, ...newTrades]);
+      if (newTrades.length < TRADES_PER_PAGE) setHasMore(false);
+      setTrades((prev) => [...prev, ...newTrades]);
       setPage(nextPage);
     } catch (error) {
       console.error("Error loading more trades:", error);
@@ -143,6 +130,20 @@ export default function Trades({ initialTrades, initialStatistics }: TradesProps
       setLoading(false);
     }
   }, [loading, hasMore, page]);
+
+  const lastTradeElementRef = useCallback(
+    (node: HTMLElement | null) => {
+      if (loading) return;
+      if (observer.current) observer.current.disconnect();
+      observer.current = new IntersectionObserver((entries) => {
+        if (entries[0].isIntersecting && hasMore) {
+          loadMoreTrades();
+        }
+      });
+      if (node) observer.current.observe(node);
+    },
+    [loading, hasMore, loadMoreTrades]
+  );
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
