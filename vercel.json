@@ -4,5 +4,6 @@
       "path": "/api/cron/daily-performance",
       "schedule": "0 0 * * *"
     }
-  ]
+  ],
+  "buildCommand": "npm run build || exit 1"
 }
