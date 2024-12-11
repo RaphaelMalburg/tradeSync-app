@@ -1,5 +1,4 @@
 import { Bot, LineChart, Gauge } from "lucide-react";
-import { SparklesCore } from "@/components/ui/sparkles";
 import { ProductGrid } from "@/components/store/ProductGrid";
 
 const products = [

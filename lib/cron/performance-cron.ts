@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { calculatePerformanceMetrics } from "@/lib/performance";
+import { calculatePerformanceMetrics } from "../tradingCalculation";
 
 export async function handleDailyPerformanceCalculation() {
   try {
@@ -11,12 +11,23 @@ export async function handleDailyPerformanceCalculation() {
 
     // Calculate performance for each user and their accounts
     for (const user of users) {
+      // Fetch user's trades
+      const userTrades = await db.trade.findMany({
+        where: { userId: user.id },
+      });
+
       // Calculate overall user performance
-      await calculatePerformanceMetrics(user.id);
+      await calculatePerformanceMetrics(userTrades);
 
       // Calculate per-account performance
       for (const account of user.Account) {
-        await calculatePerformanceMetrics(user.id, account.id);
+        const accountTrades = await db.trade.findMany({
+          where: {
+            userId: user.id,
+            accountId: account.id,
+          },
+        });
+        await calculatePerformanceMetrics(accountTrades);
       }
     }
   } catch (error) {
