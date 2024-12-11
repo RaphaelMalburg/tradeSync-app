@@ -3,9 +3,13 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { checkUser } from "@/lib/checkUser";
 
-export async function GET(request: NextRequest, { params }: { params: { accountId: string } }) {
+type RouteContext = {
+  params: Promise<{ accountId: string }>;
+};
+
+export async function GET(request: NextRequest, context: RouteContext) {
   try {
-    const { accountId } = params;
+    const { accountId } = await context.params;
 
     const user = await checkUser();
     if (!user) {
@@ -30,9 +34,9 @@ export async function GET(request: NextRequest, { params }: { params: { accountI
   }
 }
 
-export async function PUT(request: NextRequest, { params }: { params: { accountId: string } }) {
+export async function PUT(request: NextRequest, context: RouteContext) {
   try {
-    const { accountId } = params;
+    const { accountId } = await context.params;
     const data = await request.json();
 
     const user = await checkUser();
@@ -52,14 +56,14 @@ export async function PUT(request: NextRequest, { params }: { params: { accountI
     });
 
     return NextResponse.json({ accountId, ...data });
-    // eslint-disable-next-line @typescript-eslint/no-unused-vars
   } catch (error) {
     return NextResponse.json({ error: "Failed to update account" }, { status: 500 });
   }
 }
 
-export async function DELETE(request: NextRequest, { params }: { params: { accountId: string } }) {
+export async function DELETE(request: NextRequest, context: RouteContext) {
   try {
+    const { accountId } = await context.params;
     const user = await checkUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -67,7 +71,7 @@ export async function DELETE(request: NextRequest, { params }: { params: { accou
 
     await db.account.delete({
       where: {
-        id: params.accountId,
+        id: accountId,
         userId: user.id,
       },
     });
