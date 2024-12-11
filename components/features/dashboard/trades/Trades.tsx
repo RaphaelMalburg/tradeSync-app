@@ -123,23 +123,26 @@ export default function Trades({ initialTrades, initialStatistics }: TradesProps
     [loading, hasMore]
   );
 
-  const loadMoreTrades = async () => {
+  const loadMoreTrades = useCallback(async () => {
+    if (loading || !hasMore) return;
+
     try {
       setLoading(true);
-      const newTrades = await getPagedTrades(page + 1, TRADES_PER_PAGE);
+      const nextPage = page + 1;
+      const newTrades = await getPagedTrades(nextPage, TRADES_PER_PAGE);
 
       if (newTrades.length < TRADES_PER_PAGE) {
         setHasMore(false);
       }
 
-      setTrades((prev) => [...prev, ...newTrades]);
-      setPage((prev) => prev + 1);
+      setTrades((prevTrades) => [...prevTrades, ...newTrades]);
+      setPage(nextPage);
     } catch (error) {
       console.error("Error loading more trades:", error);
     } finally {
       setLoading(false);
     }
-  };
+  }, [loading, hasMore, page, setTrades, setPage, setHasMore]);
 
   const handleSort = (field: SortField) => {
     if (sortField === field) {
@@ -201,7 +204,7 @@ export default function Trades({ initialTrades, initialStatistics }: TradesProps
 
     element.addEventListener("scroll", handleScroll);
     return () => element.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
+  }, [handleScroll, loadMoreTrades]);
 
   return (
     <div className="p-6 space-y-6">

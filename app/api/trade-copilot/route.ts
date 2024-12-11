@@ -24,9 +24,8 @@ export async function POST(req: Request) {
     // Step 1: Analyze the Image (Placeholder function)
     const imageAnalysis = await analyzeImageForTradeInsights(imageBuffer);
 
-    // Step 2: Prepare the prompt and context
+    // Step 2: Prepare the prompt
     const prompt = PromptTemplate.fromTemplate(TEMPLATE);
-    const context = `Image Analysis Insights:\n${imageAnalysis}\nTrade Setup Details:\n${tradeDetails}`;
 
     const model = new ChatOpenAI({
       apiKey: process.env.OPENAI_API_KEY!,

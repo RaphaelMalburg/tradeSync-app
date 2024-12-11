@@ -1,24 +1,13 @@
 "use client";
 
 import Link from "next/link";
-import { UserButton } from "@clerk/nextjs";
-import { Home, Settings } from "lucide-react";
-import { ModeToggle } from "@/components/mode-toggle";
-import { AccountSwitcher } from "@/components/features/dashboard/account/account-switcher";
-import { MainNav } from "@/components/navbar/main-nav";
-import { Search } from "@/components/navbar/search";
-import { UserNav } from "@/components/navbar/user-nav";
-import { Button } from "@/components/ui/button";
+import { Info, Mail, LineChart, ShoppingCart, SquareFunction } from "lucide-react";
 import { NavbarDropdown } from "./NavbarDropdown";
-import { usePathname } from "next/navigation";
 import { MobileNav } from "./MobileNav";
 import Image from "next/image";
 import { useState } from "react";
-import { CartIcon } from "../store/CartIcon";
 import { CartDrawer } from "../store/CartDrawer";
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Drawer, DrawerClose, DrawerContent, DrawerDescription, DrawerFooter, DrawerHeader, DrawerTitle, DrawerTrigger } from "@/components/ui/drawer";
-import { sendOrderConfirmation } from "@/lib/email";
+
 export default function Navbar() {
   const navigationItems = [
     { label: "Features", href: "/features", icon: <SquareFunction className="h-5 w-5" /> },
@@ -27,8 +16,6 @@ export default function Navbar() {
     { label: "About", href: "/about", icon: <Info className="h-5 w-5" /> },
     { label: "Contact", href: "/contact", icon: <Mail className="h-5 w-5" /> },
   ];
-
-  const [isCartOpen, setIsCartOpen] = useState(false);
 
   return (
     <>

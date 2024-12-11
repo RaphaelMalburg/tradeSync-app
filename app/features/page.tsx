@@ -1,5 +1,5 @@
 import { Sparkles } from "@/components/ui/sparkles";
-import { BarChart2, Brain, LineChart, PieChart, Zap, History, TrendingUp, Bot, Shield, RefreshCw } from "lucide-react";
+import { BarChart2, Brain, LineChart, PieChart, History, TrendingUp, Bot, Shield, RefreshCw } from "lucide-react";
 
 export default function FeaturesPage() {
   const features = [
@@ -53,7 +53,7 @@ export default function FeaturesPage() {
   return (
     <div className="min-h-screen relative bg-gradient-to-b from-white via-gray-50/50 to-gray-100/50 dark:from-[#0A0F1C] dark:via-[#0A0F1C] dark:to-[#0A0F1C]">
       <div className="absolute inset-0 overflow-hidden">
-        <Sparkles background="transparent" minSize={0.4} maxSize={1} particleDensity={100} className="w-full h-full" particleColor="#3B82F6" />
+        <Sparkles background="transparent" minSize={0.4} maxSize={1} particleCount={100} className="w-full h-full" particleColor="#3B82F6" />
       </div>
 
       {/* Hero Section */}
