@@ -1,5 +1,5 @@
-import Analytics from "@/components/features/dashboard/analytics/Analytics";
+import AnalyticsContainer from "@/components/features/dashboard/analytics/analytics-container";
 
 export default function AnalyticsPage() {
-  return <Analytics />;
+  return <AnalyticsContainer />;
 }
