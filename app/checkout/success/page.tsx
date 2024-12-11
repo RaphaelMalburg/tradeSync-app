@@ -3,7 +3,7 @@ import { stripe } from "@/lib/stripe";
 import { SuccessContent } from "@/components/store/SuccessContent";
 
 interface PageProps {
-  searchParams: Record<string, string | string[] | undefined>;
+  searchParams: { [key: string]: string | string[] | undefined };
 }
 
 export default async function SuccessPage({ searchParams }: PageProps) {
