@@ -1,7 +1,6 @@
 import { Check } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { BackgroundBeams } from "@/components/ui/background-beams";
 
 interface PricingTier {
   name: string;
