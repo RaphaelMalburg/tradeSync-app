@@ -2,17 +2,15 @@ import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { checkUser } from "@/lib/checkUser";
 
-type RouteParams = {
+interface RouteContext {
   params: {
     accountId: string;
   };
-  searchParams?: { [key: string]: string | string[] | undefined };
-};
+}
 
-export async function GET(request: NextRequest, context: RouteParams) {
+export async function GET(request: NextRequest, { params }: RouteContext) {
   try {
-    const { accountId } = context.params;
-
+    const { accountId } = params;
     const user = await checkUser();
     if (!user) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -36,9 +34,9 @@ export async function GET(request: NextRequest, context: RouteParams) {
   }
 }
 
-export async function PUT(request: NextRequest, context: RouteParams) {
+export async function PUT(request: NextRequest, { params }: RouteContext) {
   try {
-    const { accountId } = context.params;
+    const { accountId } = params;
     const data = await request.json();
 
     const user = await checkUser();
@@ -65,7 +63,7 @@ export async function PUT(request: NextRequest, context: RouteParams) {
   }
 }
 
-export async function DELETE(req: NextRequest, { params }: { params: { accountId: string } }) {
+export async function DELETE(request: NextRequest, { params }: RouteContext) {
   try {
     const user = await checkUser();
     if (!user) {
