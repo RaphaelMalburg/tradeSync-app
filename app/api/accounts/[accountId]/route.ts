@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { db } from "@/lib/db";
 import { checkUser } from "@/lib/checkUser";
+export const runtime = "edge";
 
 export async function GET(request: NextRequest, { params }: { params: { accountId: string } }) {
   try {
