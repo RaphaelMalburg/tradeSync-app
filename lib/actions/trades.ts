@@ -1,6 +1,7 @@
 "use server";
 
 import { db } from "@/lib/db";
+import { Trade } from "@prisma/client";
 import { DashboardTradeDTO } from "@/lib/dto/dashboard.dto";
 import { Sentiment } from "@prisma/client";
 
@@ -67,39 +68,52 @@ export async function getTrades(userId: string, accountId?: string): Promise<Das
   }
 }
 
-export async function getRecentTrades(userId: string, accountId?: string) {
-  if (!userId) return [];
+export async function getRecentTrades(userId: string, accountId?: string): Promise<Trade[]> {
+  if (!userId) {
+    return [];
+  }
 
   try {
     const trades = await db.trade.findMany({
       where: {
-        userId,
-        ...(accountId ? { accountId } : {}),
+        userId: userId,
+        accountId: accountId,
       },
-      orderBy: { entryTime: "desc" },
-      take: 5,
-      // Update select to include all required fields
-      select: {
-        id: true,
-        tradeId: true,
-        symbol: true,
-        instrument: true,
-        entryPrice: true,
-        exitPrice: true,
-        positionSize: true,
-        profitLoss: true,
-        entryTime: true,
-        exitTime: true,
-        performanceId: true,
-        // Include other required fields...
+      include: {
+        strategy: true,
       },
+      orderBy: {
+        entryTime: "desc",
+      },
+      take: 5, // Limit to last 5 trades for recent trades
     });
 
-    return trades;
+    return trades.map((trade) => ({
+      ...trade,
+      createdAt: trade.createdAt,
+      accountId: trade.accountId,
+      status: trade.status,
+      userId: trade.userId,
+      positionType: trade.positionType || "Buy",
+      duration: calculateDuration(trade.entryTime, trade.exitTime),
+      sentiment: trade.sentiment || "Neutral",
+      strategyId: trade.strategyId || null,
+      strategyName: trade.strategy?.name,
+      commission: trade.commission || 0,
+      riskReward: trade.riskReward || null,
+      setup: trade.setup || [],
+      symbol: trade.symbol || null,
+      timeframe: trade.timeframe || null,
+    }));
   } catch (error) {
     console.error("Error fetching recent trades:", error);
     throw new Error("Failed to fetch recent trades");
   }
+}
+
+function calculateDuration(entryTime: Date, exitTime: Date): number {
+  const diff = exitTime.getTime() - entryTime.getTime();
+  return Math.floor(diff / 1000 / 60); // Duration in minutes
 }
 
 export async function updateTradeSentiment(tradeId: string, sentiment: Sentiment) {
