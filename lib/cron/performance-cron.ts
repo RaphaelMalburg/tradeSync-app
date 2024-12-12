@@ -1,5 +1,16 @@
 import { db } from "@/lib/db";
 import { calculatePerformanceMetrics } from "../tradingCalculation";
+import type { Trade } from "@prisma/client";
+
+function mapToTrade(dbTrade: Trade) {
+  return {
+    profitLoss: dbTrade.profitLoss,
+    duration: dbTrade.duration,
+    entryTime: dbTrade.entryTime,
+    exitTime: dbTrade.exitTime,
+    commission: dbTrade.commission || undefined,
+  };
+}
 
 export async function handleDailyPerformanceCalculation() {
   try {
@@ -9,17 +20,13 @@ export async function handleDailyPerformanceCalculation() {
       },
     });
 
-    // Calculate performance for each user and their accounts
     for (const user of users) {
-      // Fetch user's trades
       const userTrades = await db.trade.findMany({
         where: { userId: user.id },
       });
 
-      // Calculate overall user performance
-      await calculatePerformanceMetrics(userTrades);
+      await calculatePerformanceMetrics(userTrades.map(mapToTrade));
 
-      // Calculate per-account performance
       for (const account of user.Account) {
         const accountTrades = await db.trade.findMany({
           where: {
@@ -27,11 +34,10 @@ export async function handleDailyPerformanceCalculation() {
             accountId: account.id,
           },
         });
-        await calculatePerformanceMetrics(accountTrades);
+        await calculatePerformanceMetrics(accountTrades.map(mapToTrade));
       }
     }
   } catch (error) {
     console.error("Daily performance calculation failed:", error);
-    // Implement your error logging here
   }
 }
