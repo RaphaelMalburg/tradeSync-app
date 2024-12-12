@@ -1,6 +1,8 @@
 import { ReactNode } from "react";
 import { Sentiment } from "@prisma/client";
 import { DashboardPerformanceDTO } from "@/lib/dto/dashboard.dto";
+import { AccountType as PrismaAccountType } from "@prisma/client";
+
 export interface User {
   id: string;
   clerkUserId: string;
@@ -10,16 +12,14 @@ export interface User {
   apiKey?: string;
 }
 
-export type AccountType = "DEMO" | "LIVE";
-
 export interface Account {
   id: string;
   name: string;
+  description: string | null;
+  accountType: PrismaAccountType;
+  userId: string;
   createdAt: Date;
   updatedAt: Date;
-  description: string | null;
-  accountType: AccountType;
-  userId: string;
 }
 
 export interface Product {
