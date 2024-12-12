@@ -3,6 +3,7 @@ interface Trade {
   duration: number;
   entryTime: Date;
   exitTime?: Date; // Optional: added in case you want to use exit time for other metrics
+  commission?: number; // Optional commission field
 }
 
 interface PerformanceMetrics {
