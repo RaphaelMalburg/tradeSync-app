@@ -1,7 +1,6 @@
 "use server";
 
 import { db } from "@/lib/db";
-import { Trade } from "@prisma/client";
 import { DashboardTradeDTO } from "@/lib/dto/dashboard.dto";
 import { Sentiment } from "@prisma/client";
 
@@ -68,42 +67,38 @@ export async function getTrades(userId: string, accountId?: string): Promise<Das
   }
 }
 
-export async function getRecentTrades(userId: string, accountId?: string): Promise<Trade[]> {
-  if (!userId) {
-    return [];
-  }
+export async function getRecentTrades(userId: string, accountId?: string) {
+  if (!userId) return [];
 
   try {
-    console.log("Fetching recent trades with:", { userId, accountId });
-
     const trades = await db.trade.findMany({
       where: {
-        userId: userId,
-        ...(accountId ? { accountId: accountId } : {}),
+        userId,
+        ...(accountId ? { accountId } : {}),
       },
-      orderBy: {
-        entryTime: "desc",
-      },
+      orderBy: { entryTime: "desc" },
       take: 5,
+      // Update select to include all required fields
       select: {
         id: true,
+        tradeId: true,
+        symbol: true,
+        instrument: true,
+        entryPrice: true,
+        exitPrice: true,
+        positionSize: true,
+        profitLoss: true,
         entryTime: true,
         exitTime: true,
+        performanceId: true,
+        // Include other required fields...
       },
     });
-
-    console.log("Trades found:", trades.length);
 
     return trades;
   } catch (error) {
-    console.error("Error details:", {
-      error,
-      userId,
-      accountId,
-      message: error instanceof Error ? error.message : "Unknown error",
-    });
-
-    throw new Error(`Failed to fetch recent trades: ${error instanceof Error ? error.message : "Unknown error"}`);
+    console.error("Error fetching recent trades:", error);
+    throw new Error("Failed to fetch recent trades");
   }
 }
 
@@ -162,6 +157,7 @@ export interface TradeStatistics {
   totalProfitLoss: number;
   averageProfitLoss: number;
   totalTrades: number;
+  profitFactor: number;
 }
 
 export async function getTradeStatistics(): Promise<TradeStatistics> {
@@ -180,17 +176,27 @@ export async function getTradeStatistics(): Promise<TradeStatistics> {
         totalProfitLoss: 0,
         averageProfitLoss: 0,
         totalTrades: 0,
+        profitFactor: 0,
       };
     }
 
     const winningTrades = trades.filter((t) => t.profitLoss > 0);
     const totalProfitLoss = trades.reduce((sum, trade) => sum + trade.profitLoss, 0);
 
+    // Calculate profit factor (total gains divided by total losses)
+    const losingTrades = trades.filter((trade) => trade.profitLoss < 0);
+
+    const totalGains = winningTrades.reduce((sum, trade) => sum + trade.profitLoss, 0);
+    const totalLosses = Math.abs(losingTrades.reduce((sum, trade) => sum + trade.profitLoss, 0));
+
+    const profitFactor = totalLosses === 0 ? totalGains : totalGains / totalLosses;
+
     return {
       winRate: (winningTrades.length / totalTrades) * 100,
       totalProfitLoss,
       averageProfitLoss: totalProfitLoss / totalTrades,
       totalTrades,
+      profitFactor: Number(profitFactor.toFixed(2)),
     };
   } catch (error) {
     console.error("Error calculating trade statistics:", error);

@@ -72,3 +72,11 @@ export interface EnhancedTradeDTO {
   timeframe: string;
   strategy?: string;
 }
+
+export interface TradeStatistics {
+  totalTrades: number;
+  winRate: number;
+  averageProfit: number;
+  totalProfit: number;
+  profitFactor: number;
+}
