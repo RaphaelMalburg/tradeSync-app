@@ -49,15 +49,14 @@ export function TradesTable({ trades, strategies, onUpdateStrategy, onUpdateSent
               </Select>
             </TableCell>
             <TableCell>
-              <Select value={trade.sentiment || "none"} onValueChange={(value) => onUpdateSentiment(trade.id, value)}>
+              <Select value={trade.sentiment || "Neutral"} onValueChange={(value) => onUpdateSentiment(trade.id, value as Sentiment)}>
                 <SelectTrigger className="w-[180px]">
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="none">No Sentiment</SelectItem>
-                  <SelectItem value="GOOD">Good</SelectItem>
-                  <SelectItem value="BAD">Bad</SelectItem>
-                  <SelectItem value="NEUTRAL">Neutral</SelectItem>
+                  <SelectItem value="Positive">Positive</SelectItem>
+                  <SelectItem value="Negative">Negative</SelectItem>
+                  <SelectItem value="Neutral">Neutral</SelectItem>
                 </SelectContent>
               </Select>
             </TableCell>
