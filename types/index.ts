@@ -10,10 +10,16 @@ export interface User {
   apiKey?: string;
 }
 
+export type AccountType = "DEMO" | "LIVE";
+
 export interface Account {
   id: string;
   name: string;
-  accountType: string;
+  createdAt: Date;
+  updatedAt: Date;
+  description: string | null;
+  accountType: AccountType;
+  userId: string;
 }
 
 export interface Product {

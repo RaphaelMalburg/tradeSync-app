@@ -26,7 +26,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
               <AccountDialog />
             </div>
             <div className="px-4 mt-4">
-              <AccountSelector accounts={accounts} currentAccountId={accounts[0]?.id} />
+              <AccountSelector accounts={accounts} />
             </div>
             <DashboardNav items={dashboardItems} />
           </div>
